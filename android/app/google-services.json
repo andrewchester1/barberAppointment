@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "399527668398",
+    "project_id": "barber-appointment-app-a996f",
+    "storage_bucket": "barber-appointment-app-a996f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399527668398:android:fbbab9dbaeefc80b4a1b3f",
+        "android_client_info": {
+          "package_name": "com.barberappointment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "399527668398-frnuhq99td2t9o4t7f96a0u4vbt31g46.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlYCTMy0kviEV0G3OacCaWKIaI2wu-EbA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399527668398-frnuhq99td2t9o4t7f96a0u4vbt31g46.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
