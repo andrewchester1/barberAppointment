@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
+import FirebaseApp from '../FirebaseApp';
 import FirebaseUtil from '../utils/FirebaseUtil';
+import FirestoreUtil from '../utils/FirestoreUtil';
 import { LoginContext } from '../utils/LoginProvider';
 
 const HomeScreen = () => {
@@ -11,7 +13,7 @@ const HomeScreen = () => {
     })}
     return(
         <View style={styles.container}>
-            <Text> Home: {user?.email}</Text>
+            <FirebaseApp />
             <Button onPress={()=> signOut()} title='Logout'/>
         </View>
     )

@@ -43,7 +43,7 @@ const LoginScreen = () => {
                 <>
                     <Button title='Sign In' onPress={() => signIn()} />
                     <Text style={styles.text} onPress={() => setCreate(true)}>
-                        Create an Account
+                        Sign in
                     </Text>
                 </>
             )}
