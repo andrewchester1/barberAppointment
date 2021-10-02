@@ -5,6 +5,7 @@ import { LoginContext } from "./utils/LoginProvider";
 import LoadingScreen from "./screens/LoadingScreen";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
+import FirebaseApp from "./FirebaseApp";
 
 const Stack = createNativeStackNavigator ();
 export default function AppStack() {

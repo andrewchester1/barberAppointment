@@ -5,6 +5,8 @@ import FirebaseUtil from '../utils/FirebaseUtil';
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [phone, setPhone] = useState('');
+    const [name, setName] = useState('');
 
     const [create, setCreate] = useState(false);
 
@@ -12,7 +14,7 @@ const LoginScreen = () => {
         console.log(e)
         alert('Email/Password is incorrect')
     })};
-    const signUp = () => {FirebaseUtil.signUp(email, password).catch((e) => {
+    const signUp = () => {FirebaseUtil.signUp(email, password, phone, name).catch((e) => {
         console.log(e)
         alert('Something went wrong')
     })};
@@ -34,9 +36,21 @@ const LoginScreen = () => {
             />
             {create ? (
                 <>
+                    <TextInput 
+                        placeholder="Phone"
+                        onChangeText={setPhone}
+                        value={phone}
+                        style={styles.textInput} 
+                    />
+                    <TextInput 
+                        placeholder="Name"
+                        onChangeText={setName}
+                        value={name}
+                        style={styles.textInput}
+                    />
                     <Button title='Sign Up' onPress={() => signUp()} />
                     <Text style={styles.text} onPress={() => setCreate(false)}>
-                        Create an Account
+                        Sign In
                     </Text>
                 </>
             ) : (
