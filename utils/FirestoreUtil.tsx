@@ -7,10 +7,10 @@ export default function FirestoreUtil() {
             Name: ""
         }
     }
-    const getUser = async () => {
-        const userDocument = await firestore().collection("Test").doc('WCsBigwGq8EKLFbV1oFc').get()
-        console.log(userDocument)
-        console.log('state: ', this.state.Test.Name)
-        return this.state.Test.Name
-    }
+    // const getUser = async () => {
+    //     const userDocument = await firestore().collection("Test").doc('WCsBigwGq8EKLFbV1oFc').get()
+    //     console.log(userDocument)
+    //     console.log('state: ', this.state.Test.Name)
+    //     return this.state.Test.Name
+    // }
 }

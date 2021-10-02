@@ -5,9 +5,6 @@ export default class FirebaseUtil {
     public static signIn = (email: string, password: string) => {
         return auth().signInWithEmailAndPassword(email, password);
     }
-    // public static signUp = (email: string, password: string) => {
-    //     return auth().createUserWithEmailAndPassword(email, password);
-    // }
     public static signOut = () => {
         return auth().signOut();
     }
@@ -22,7 +19,5 @@ export default class FirebaseUtil {
             };
             firestore().collection('Test').doc(data.user.uid).set(user);
          })
-        // const userData = auth().currentUser;
-        // console.log('userDate: ', userData)
     }
 }
