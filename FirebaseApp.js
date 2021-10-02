@@ -1,32 +1,34 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth'
 
 class FirebaseApp extends Component {
     state = {
         Test: {
-            Name: ""
+            name: ""
         }
     }
     constructor(props) {
         super(props);
         this.getUser();
+        const userData = auth().currentUser;
         this.subscriber = firestore().collection("Test").doc
-        ('WCsBigwGq8EKLFbV1oFc').onSnapshot(doc => {
+        (userData.uid).onSnapshot(doc => {
             this.setState({
                 Test: {
-                    Name: doc.data().Name
+                    name: doc.data().name
             }})
         })
     }
     getUser = async () => {
-        const userDocument = await firestore().collection("Test").doc('WCsBigwGq8EKLFbV1oFc').get()
-        console.log(userDocument)
+        const userData = auth().currentUser;
+        const userDocument = await firestore().collection("Test").doc(userData.uid).get()
     }
     render() {
         return (
             <View>
-                <Text>FirebaseApp: {this.state.Test.Name} </Text>
+                <Text>FirebaseApp: {this.state.Test.name} </Text>
             </View>
         )
     }
