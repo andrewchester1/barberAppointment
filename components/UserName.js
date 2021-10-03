@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
+import { Card } from 'react-native-elements'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
 
@@ -27,9 +28,11 @@ class FirebaseApp extends Component {
     }
     render() {
         return (
-            <View>
-                <Text>FirebaseApp: {this.state.Test.name} </Text>
-            </View>
+            <Card containerStyle={{ flex: 2, borderRadius: 15}}>
+                <Card.Title style={{ fontSize: 15}}> Account Name: {this.state.Test.name} </Card.Title>
+                <Card.Divider/>
+                    <Text> Account Details/Image </Text>
+            </Card>
         )
     }
 }
