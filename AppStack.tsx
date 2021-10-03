@@ -5,7 +5,7 @@ import { LoginContext } from "./utils/LoginProvider";
 import LoadingScreen from "./screens/LoadingScreen";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
-import FirebaseApp from "./FirebaseApp";
+import AppointmentScreen from "./screens/AppointmentScreen";
 import AboutScreen from "./screens/AboutScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -16,6 +16,7 @@ function MainStackNavigator() {
     return (
         <Tab.Navigator>
             <Tab.Screen name='Home' component={HomeScreen} />
+            <Tab.Screen name='Appointment' component={AppointmentScreen} />
             <Tab.Screen name='About' component={AboutScreen} />
         </Tab.Navigator>
     )
