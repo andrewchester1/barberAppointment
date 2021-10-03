@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import FirebaseApp from '../FirebaseApp';
+import FirebaseApp from '../components/UserName';
 import FirebaseUtil from '../utils/FirebaseUtil';
 import FirestoreUtil from '../utils/FirestoreUtil';
 import { LoginContext } from '../utils/LoginProvider';

@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import FirebaseApp from '../FirebaseApp';
+import { Card } from 'react-native-elements'
+import FirebaseApp from '../components/UserName';
 import FirebaseUtil from '../utils/FirebaseUtil';
 import FirestoreUtil from '../utils/FirestoreUtil';
 import { LoginContext } from '../utils/LoginProvider';
@@ -8,6 +9,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import LoginScreen from './LoginScreen';
 import AboutScreen from './AboutScreen';
+import UserAppointmentsUtil from '../components/UserAppointments';
 
 const HomeScreen = () => {
     const { user } = useContext(LoginContext);
@@ -20,16 +22,9 @@ const HomeScreen = () => {
 
     return(
         <View style={styles.container}>
-            <View style={styles.box}>
-                <FirebaseApp />
-            </View>
-            <View style={styles.box}>
-                <Text>Item 2</Text>
-            </View>
-            <View style={styles.box}>
-                <Text>Item 3</Text>
-                <Button onPress={() => signOut()} title='Logout' />
-            </View>
+            <FirebaseApp />
+            <UserAppointmentsUtil />
+            <Button onPress={() => signOut()} title='Logout' />
         </View>
     )
 }
@@ -37,16 +32,10 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-    //   backgroundColor: '#fff',
+      backgroundColor: '#fff',
       justifyContent: 'center',
       alignContent: 'center',
-      padding: 20,
-    },
-    box: {
-        flex: 1,
-        backgroundColor: "grey",
-        padding: 20,
-      }
+    }
   });
 
 export default HomeScreen
