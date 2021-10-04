@@ -11,7 +11,6 @@ const AppointmentScreen = () => {
 
     return(
         <View style={styles.container}>
-            <AppointmentCalendar />
             <AppointmentTimes />
         </View>
     )

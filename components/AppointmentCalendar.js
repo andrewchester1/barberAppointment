@@ -24,7 +24,7 @@ export default class App extends Component {
     let minDate = new Date()
     let maxDate = today.add(30, 'day');
     return (
-      <View style={{flex: 2}}>
+      <View style={{flex: 1}}>
         <CalendarPicker
             minDate={minDate}
             maxDate={maxDate}

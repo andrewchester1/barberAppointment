@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, ListView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Card, ListItem } from 'react-native-elements'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
+import CalendarPicker from 'react-native-calendar-picker';
+import moment from 'moment';
+import { get } from 'core-js/core/dict';
 
 class AppointmentTimes extends Component {
     state = {
@@ -40,16 +43,27 @@ class AppointmentTimes extends Component {
         super(props);
         this.state = { 
             time : {},
-            final: {}
+            final: {},
+            selectedStartDate: null,
         };
+        this.onDateChange = this.onDateChange.bind(this);
     }
+
+    onDateChange(date) {
+        this.setState({
+          selectedStartDate: date,
+        });
+        this.getData()
+      }
     
-    componentDidMount() {
+    getData() {
         firestore().collection("Oct").doc
-        ('10-03-2021').onSnapshot(doc => {
+        (moment(this.state.selectedStartDate).format('YYYY-MM-DD').toString()).onSnapshot(doc => {
             this.setState({ time: doc.data() })
             this.setState({ final: {...this.AppoitnmentTime, ...this.state.time}})
             console.log('this.state.time', this.state.final)
+            console.log('onDateChange: ', (moment(this.state.selectedStartDate).format('YYYY-MM-DD').toString()))
+            console.log('Dataaaaa: ', this.state.selectedStartDate)
         }); 
     }
     // scheduleAppoint = async () => {
@@ -57,18 +71,32 @@ class AppointmentTimes extends Component {
     // }
 
     render() {
+        const { selectedStartDate } = this.state;
+        const selectedDate = selectedStartDate ? moment(selectedStartDate).format('YYYY-MM-DD').toString() : '';
+        const today = moment()
+        let minDate = new Date()
+        let maxDate = today.add(30, 'day');
         return (
-            <Card containerStyle={{ flex: 1, borderRadius: 15 }}>
-                <Card.Title style={{ fontSize: 15}}> Avaliable Times </Card.Title>
-                <Card.Divider/>
-                    { 
-                        Object.entries(this.state.final).map((onekey, i) => {
-                            return (
-                                <Text style={{flexDirection: 'row'}} key={i}>{onekey[1] ? null : onekey[0]} {console.log('[onekey]: ', onekey[1])} </Text>
-                            )
-                        })
-                    }
-            </Card>
+            <><View style={{ flex: 1 }}>
+                <CalendarPicker
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    onDateChange={this.onDateChange} />
+                <View>
+                    <Text>Selected Date: {selectedDate}</Text>
+                </View>
+                <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
+                {
+                    Object.entries(this.state.final).map((onekey, i) => (
+                        <ListItem key={i} bottomDivider numColumns={2}>
+                            <ListItem.Content>
+                                <ListItem.Title>{onekey[1] ? null : onekey[0]}</ListItem.Title>
+                            </ListItem.Content>
+                        </ListItem>
+                    ))
+                }
+                </ScrollView >
+            </View></>
         )
     }
 }
