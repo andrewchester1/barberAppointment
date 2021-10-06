@@ -39,13 +39,10 @@ class UserAppointmentsUtil extends Component {
 
     dateCheck = async () => {
         const upcomingAppointment = new moment(this.state.Appointments.upcoming).format('YYYY-MM-DD').toString()
-        console.log('upcomingAppointment', upcomingAppointment)
         const dateToday = new moment().format('YYYY-MM-DD').toString()
-        console.log('dateToday: ', dateToday)
         const userData = auth().currentUser;
         if (dateToday > upcomingAppointment) {
-            const test = await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).update({previous: upcomingAppointment, upcoming: ''})
-            console.log('test: ', test)
+            await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).update({previous: upcomingAppointment, upcoming: ''})
         }
     }
 

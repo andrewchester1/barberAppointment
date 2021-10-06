@@ -12,7 +12,7 @@ class AppointmentTimes extends Component {
         final: {},
         showAppointments: false,
         userName: '',
-        appointmentData: {}
+        newPrevious: '',
     }
     AppoitnmentTime = {
         '8:00 am': '',
@@ -51,7 +51,7 @@ class AppointmentTimes extends Component {
             confirmTime: false,
             selectedTime: null,
             userName: '',
-            appointmentData: {},
+            newPrevious: '',
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -72,17 +72,12 @@ class AppointmentTimes extends Component {
     }
 
     onTimeClick(value) {
-        this.confirmAppointmentTime()
         this.getUserId()
         this.setState({
             isLoading: false,
             confirmTime: true,
             selectedTime: value,
         }); 
-    }
-
-    confirmAppointmentTime = () => {
-
     }
     
     onGetData = async () => {
@@ -122,23 +117,22 @@ class AppointmentTimes extends Component {
         }); 
     }
 
-    addAppointmentToUser = (selectedDate, selectedTime) => {
-        console.log('selectedDate', selectedDate)
+    addAppointmentToUser = async (selectedDate, selectedTime) => {
         const userData = auth().currentUser;
-        firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).onSnapshot(doc => {
-            const appointmentData = {
-                    barber: 'Nate',
-                    previous: doc.data()?.upcoming ? doc.data().upcoming : '',
-                    price: '$40',
-                    upcoming: selectedDate,
-                    time: selectedTime,
-                }; this.addAppointmentDataBase(userData, appointmentData)
-        }); 
+        const oldAppointmentData = await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).get()
+        this.setState({ newPrevious: oldAppointmentData.get('upcoming') })
+        this.addAppointmentDataBase(userData, selectedDate, selectedTime)
     }
 
-    addAppointmentDataBase = (userData, appointmentData) => {
-        firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).set( appointmentData, {merge: true})
-        console.log('this.state.appointmentData', appointmentData)
+    addAppointmentDataBase = async (userData, selectedDate, selectedTime) => {
+        const appointmentData = {
+            barber: 'Nate',
+            previous: this.state.newPrevious,
+            price: '$40',
+            upcoming: selectedDate,
+            time: selectedTime,
+        };
+        await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).set( appointmentData, {merge: true})
     }
 
     render() {
@@ -152,6 +146,7 @@ class AppointmentTimes extends Component {
                 <CalendarPicker
                     minDate={minDate}
                     maxDate={maxDate}
+                    //disabledDates={}
                     onDateChange={this.onDateChange} />
                 <View>
                     <Text>Selected Date: {selectedDate}</Text>
