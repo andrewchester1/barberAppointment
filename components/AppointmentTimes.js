@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Button, ActivityIndicator } from 'react-native';
 import { Card, ListItem } from 'react-native-elements'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
 import CalendarPicker from 'react-native-calendar-picker';
 import moment from 'moment';
-import { get } from 'core-js/core/dict';
 
 class AppointmentTimes extends Component {
     state = {
         time: {},
-        final: {}
+        final: {},
+        showAppointments: false,
+        userName: '',
     }
     AppoitnmentTime = {
         '8:00 am': '',
@@ -44,7 +45,11 @@ class AppointmentTimes extends Component {
         this.state = { 
             time : {},
             final: {},
+            isLoading: false,
             selectedStartDate: null,
+            confirmTime: false,
+            selectedTime: null,
+            userName: '',
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -52,26 +57,70 @@ class AppointmentTimes extends Component {
     onDateChange(date) {
         this.setState({
           selectedStartDate: date,
+          isLoading: false,
+          confirmTime: false,
         });
-        this.getData()
       }
     
-    getData() {
-        firestore().collection("Oct").doc
-        (moment(this.state.selectedStartDate).format('YYYY-MM-DD').toString()).onSnapshot(doc => {
-            this.setState({ time: doc.data() })
-            this.setState({ final: {...this.AppoitnmentTime, ...this.state.time}})
-            console.log('this.state.time', this.state.final)
-            console.log('onDateChange: ', (moment(this.state.selectedStartDate).format('YYYY-MM-DD').toString()))
-            console.log('Dataaaaa: ', this.state.selectedStartDate)
+    onButtonClick() {
+        this.onGetData()
+        this.setState({
+            isLoading: true,
+          });
+    }
+
+    onTimeClick(value) {
+        this.confirmAppointmentTime()
+        this.getUserId()
+        this.setState({
+            isLoading: false,
+            confirmTime: true,
+            selectedTime: value,
         }); 
     }
-    // scheduleAppoint = async () => {
-    //     await firestore().collection("Calendar").doc(selectedMonth).collection(selectedTime).doc(userName).set(appointmentData)
-    // }
+
+    confirmAppointmentTime = () => {
+
+    }
+    
+    onGetData = async () => {
+        const { selectedStartDate } = this.state;
+        this.state.final = {}
+        firestore()
+        .collection(moment(selectedStartDate).format('MMM YY'))
+        .doc(moment(selectedStartDate).format('YYYY-MM-DD')).onSnapshot(doc => {
+            this.setState({ time: doc.data() })
+            this.setState({ final: {...this.AppoitnmentTime, ...this.state.time}})
+        }); this.setState({isLoading:true})
+    }
+
+    getUserId = () => {
+    const userData = auth().currentUser;
+        firestore().collection("Test").doc(userData.uid).onSnapshot(doc => {
+            this.setState({ userName: doc.data().name }); 
+        })
+    }
+
+    scheduleAppoint = async (selectedDate, selectedTime) => {
+        const newSelectedTime = selectedTime
+        const userAppointmentInfo = {
+            [`${newSelectedTime}`] : this.state.userName
+        };
+
+        const test = await firestore()
+        .collection(moment(selectedDate).format('MMM YY'))
+        .doc(moment(selectedDate).format('YYYY-MM-DD')).set(userAppointmentInfo, {merge: true})
+        .then(() => {
+            console.log('It worked!!!!!')
+            alert('Appointment Scheduled')
+        }).catch((error) => {
+            console.log('Error updating the document: ', error)
+            alert('Something went wrong try again')
+        }); 
+    }
 
     render() {
-        const { selectedStartDate } = this.state;
+        const { selectedStartDate, isLoading, final, confirmTime, selectedTime } = this.state;
         const selectedDate = selectedStartDate ? moment(selectedStartDate).format('YYYY-MM-DD').toString() : '';
         const today = moment()
         let minDate = new Date()
@@ -85,17 +134,37 @@ class AppointmentTimes extends Component {
                 <View>
                     <Text>Selected Date: {selectedDate}</Text>
                 </View>
-                <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
-                {
-                    Object.entries(this.state.final).map((onekey, i) => (
-                        <ListItem key={i} bottomDivider numColumns={2}>
+                <View>
+                    <Button onPress={() => this.onButtonClick()} title='See Available Times' />
+                </View>
+                { isLoading ?
+                    <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
+                    {
+                    Object.entries(final).map((onekey, i) => (
+                        <ListItem key={i} bottomDivider numColumns={2} onPress={() => this.onTimeClick(onekey[0])}>
                             <ListItem.Content>
                                 <ListItem.Title>{onekey[1] ? null : onekey[0]}</ListItem.Title>
                             </ListItem.Content>
                         </ListItem>
-                    ))
+                        ))
+                    }  
+                    </ScrollView > : 
+                    <View>
+                        <Text>Choose a Date</Text>
+                    </View>
                 }
-                </ScrollView >
+                { confirmTime ?
+                    <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
+                        <Card.Title style={{ fontSize: 15 }}>{selectedDate} @ {selectedTime}</Card.Title>
+                        <Card.Divider />
+                        <Text>Price: $40</Text>
+                        <Text>Location: </Text>
+                        <Text>Total time: ~30 minutes</Text>
+                        <Button onPress={() => this.scheduleAppoint(selectedDate, selectedTime)} title='Confirm Appointment' />
+                    </Card> : 
+                    <View></View>
+                }
+
             </View></>
         )
     }
