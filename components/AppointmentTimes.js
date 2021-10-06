@@ -12,6 +12,7 @@ class AppointmentTimes extends Component {
         final: {},
         showAppointments: false,
         userName: '',
+        appointmentData: {}
     }
     AppoitnmentTime = {
         '8:00 am': '',
@@ -50,6 +51,7 @@ class AppointmentTimes extends Component {
             confirmTime: false,
             selectedTime: null,
             userName: '',
+            appointmentData: {},
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -111,12 +113,32 @@ class AppointmentTimes extends Component {
         .collection(moment(selectedDate).format('MMM YY'))
         .doc(moment(selectedDate).format('YYYY-MM-DD')).set(userAppointmentInfo, {merge: true})
         .then(() => {
+            this.addAppointmentToUser(selectedDate, selectedTime)
             console.log('It worked!!!!!')
             alert('Appointment Scheduled')
         }).catch((error) => {
             console.log('Error updating the document: ', error)
             alert('Something went wrong try again')
         }); 
+    }
+
+    addAppointmentToUser = (selectedDate, selectedTime) => {
+        console.log('selectedDate', selectedDate)
+        const userData = auth().currentUser;
+        firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).onSnapshot(doc => {
+            const appointmentData = {
+                    barber: 'Nate',
+                    previous: doc.data()?.upcoming ? doc.data().upcoming : '',
+                    price: '$40',
+                    upcoming: selectedDate,
+                    time: selectedTime,
+                }; this.addAppointmentDataBase(userData, appointmentData)
+        }); 
+    }
+
+    addAppointmentDataBase = (userData, appointmentData) => {
+        firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).set( appointmentData, {merge: true})
+        console.log('this.state.appointmentData', appointmentData)
     }
 
     render() {
