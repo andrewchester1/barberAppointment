@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { Card } from 'react-native-elements'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
+import moment from 'moment';
 
 class UserAppointmentsUtil extends Component {
     state = {
@@ -27,19 +28,21 @@ class UserAppointmentsUtil extends Component {
                     price: doc.data().price,
                     upcoming: doc.data().upcoming,
                     time: doc.data().time
-                }})
-        })
+                }}); this.dateCheck()
+        }); 
     }
+
     getUser = async () => {
         const userData = auth().currentUser;
         const userDocument = await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).get()
     }
 
     dateCheck = async () => {
-        const upcomingAppointment = new Date(this.state.Appointments.upcoming)
-        const dateToday = new Date()
-        if (dateToday.getTime() > upcomingAppointment.getTime()) {
-            await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).update({'previous': upcomingAppointment, 'upcoming': ''})
+        const upcomingAppointment = new moment(this.state.Appointments.upcoming).format('YYYY-MM-DD').toString()
+        const dateToday = new moment().format('YYYY-MM-DD').toString()
+        const userData = auth().currentUser;
+        if (dateToday > upcomingAppointment) {
+            await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).update({previous: upcomingAppointment, upcoming: ''})
         }
     }
 
@@ -48,15 +51,24 @@ class UserAppointmentsUtil extends Component {
             <><Card containerStyle={{ flex: 2, borderRadius: 15 }}>
                 <Card.Title style={{ fontSize: 15 }}> Upcoming Appointment </Card.Title>
                 <Card.Divider />
-                <Text> Date: {this.state.Appointments.upcoming} </Text>
-                <Text> Time: {this.state.Appointments?.time} </Text>
-                <Text> Price: {this.state.Appointments.price} </Text>
-                <Text> Barber: {this.state.Appointments.barber} </Text>
+                { this.state?.Appointments?.upcoming && this.state?.Appointments?.upcoming != '' ?
+                    <>
+                    <Text> Date: {this.state.Appointments.upcoming} </Text>
+                    <Text> Time: {this.state.Appointments?.time} </Text>
+                    <Text> Price: {this.state.Appointments.price} </Text>
+                    <Text> Barber: {this.state.Appointments.barber} </Text>
+                    </>
+                 : <Text style={{ textAlign: 'center'}}> No Upcoming Appointments Scheduled </Text>
+                }
             </Card>
             <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
                 <Card.Title style={{ fontSize: 15 }}> Previous Appointment </Card.Title>
                 <Card.Divider />
-                <Text> Date: {this.state.Appointments.previous} </Text>
+                { this.state?.Appointments?.previous && this.state?.Appointments?.previous != ''  ?
+                    <Text> Date: {this.state.Appointments.previous} </Text>
+                :   
+                    <Text style={{ textAlign: 'center'}}> You do not have any Previous Appointments</Text>
+                }
             </Card></>
         )
     }
