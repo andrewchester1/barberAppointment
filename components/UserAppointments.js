@@ -23,9 +23,7 @@ class UserAppointmentsUtil extends Component {
         (userData.uid).onSnapshot(doc => {
             this.setState({
                 Appointments: {
-                    barber: doc.data().barber,
                     previous: doc.data().previous,
-                    price: doc.data().price,
                     upcoming: doc.data().upcoming,
                     time: doc.data().time
                 }}); this.dateCheck()
@@ -55,8 +53,6 @@ class UserAppointmentsUtil extends Component {
                     <>
                     <Text> Date: {this.state.Appointments.upcoming} </Text>
                     <Text> Time: {this.state.Appointments?.time} </Text>
-                    <Text> Price: {this.state.Appointments.price} </Text>
-                    <Text> Barber: {this.state.Appointments.barber} </Text>
                     </>
                  : <Text style={{ textAlign: 'center'}}> No Upcoming Appointments Scheduled </Text>
                 }

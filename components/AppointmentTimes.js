@@ -110,7 +110,7 @@ class AppointmentTimes extends Component {
         .then(() => {
             this.addAppointmentToUser(selectedDate, selectedTime)
             console.log('It worked!!!!!')
-            alert('Appointment Scheduled')
+            alert(`Thanks ${this.state.userName}, your appointment has been scheduled`)
         }).catch((error) => {
             console.log('Error updating the document: ', error)
             alert('Something went wrong try again')
@@ -126,9 +126,7 @@ class AppointmentTimes extends Component {
 
     addAppointmentDataBase = async (userData, selectedDate, selectedTime) => {
         const appointmentData = {
-            barber: 'Nate',
             previous: this.state.newPrevious,
-            price: '$40',
             upcoming: selectedDate,
             time: selectedTime,
         };
@@ -149,12 +147,9 @@ class AppointmentTimes extends Component {
                     //disabledDates={}
                     onDateChange={this.onDateChange} />
                 <View>
-                    <Text>Selected Date: {selectedDate}</Text>
+                    <Button onPress={() => this.onButtonClick()} title={`Check Available Times for ${selectedDate}`} />
                 </View>
-                <View>
-                    <Button onPress={() => this.onButtonClick()} title='See Available Times' />
-                </View>
-                { isLoading ?
+                { isLoading &&
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                     {
                     Object.entries(final).map((onekey, i) => (
@@ -165,10 +160,7 @@ class AppointmentTimes extends Component {
                         </ListItem>
                         ))
                     }  
-                    </ScrollView > : 
-                    <View>
-                        <Text>Choose a Date</Text>
-                    </View>
+                    </ScrollView > 
                 }
                 { confirmTime ?
                     <Card containerStyle={{ flex: 2, borderRadius: 15 }}>

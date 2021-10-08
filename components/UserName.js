@@ -7,7 +7,9 @@ import auth from '@react-native-firebase/auth'
 class FirebaseApp extends Component {
     state = {
         Test: {
-            name: ""
+            name: "",
+            email: "",
+            phone: ""
         }
     }
     constructor(props) {
@@ -18,7 +20,9 @@ class FirebaseApp extends Component {
         (userData.uid).onSnapshot(doc => {
             this.setState({
                 Test: {
-                    name: doc.data().name
+                    name: doc.data().name,
+                    email: doc.data().email,
+                    phone: doc.data().phone
             }})
         })
     }
@@ -31,7 +35,8 @@ class FirebaseApp extends Component {
             <Card containerStyle={{ flex: 2, borderRadius: 15}}>
                 <Card.Title style={{ fontSize: 15}}> Account Name: {this.state.Test.name} </Card.Title>
                 <Card.Divider/>
-                    <Text> Account Details/Image </Text>
+                    <Text> Email: {this.state.Test.email} </Text>
+                    <Text> Phone: {this.state.Test.phone} </Text>
             </Card>
         )
     }
