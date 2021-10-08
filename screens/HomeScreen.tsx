@@ -12,25 +12,42 @@ import AboutScreen from './AboutScreen';
 import UserAppointmentsUtil from '../components/UserAppointments';
 import FirestoreBarberInfoUtil from '../utils/FirestoreBarberInfoUtil';
 import FirestoreUpcomingAppointmentsUtil from '../utils/FirestoreUpcomingAppointmentsUtil';
+import FirestoreUserNameUtil from '../utils/FireStoreUserNameUtil';
 
 const HomeScreen = () => {
     const { user } = useContext(LoginContext);
     const [barberInfo, setBarberInfo] = useState({});
     const [appointmentInfo, setAppointmentInfo] = useState({});
-    const [previousAppointmentInfo, setPreviousAppointmentInfo] = useState({})
+    const [previousAppointmentInfo, setPreviousAppointmentInfo] = useState({});
+    const [userInfo, setUserInfo] = useState({});
+    const [userName, setUserName] = useState();
     
     const signOut = () => {FirebaseUtil.signOut().catch((e) => {
         console.log(e)
         alert('Something went wrong')
     })}
 
+    function getUserName() {
+        FirestoreUserNameUtil.getUserName().then((userData) => {
+            const userInfo = {
+                Email: userData.data().email,
+                Phone: userData.data().phone
+            };
+            const userName = userData.data().name
+            setUserInfo(userInfo)
+            setUserName(userName)
+            console.log('barberData: ', userData);
+            return userData;
+            // console.log(e)
+        });
+    }
+
     function getBarberInfo() {
         FirestoreBarberInfoUtil.getBarberInfo().then((testData) => {
             const barberData = {
-                Price: testData.data().price,
+                Price: 'Price ' + testData.data().price,
                 Location: testData.data().location,
-                Phone: testData.data().phone,
-                Barber: testData.data().name
+                Phone: testData.data().name + "'s Phone: " + testData.data().phone
             };
             setBarberInfo(barberData)
             console.log('barberData: ', barberData);
@@ -42,8 +59,7 @@ const HomeScreen = () => {
     function getAppointmentInfo() {
         FirestoreUpcomingAppointmentsUtil.getAppointmentInfo().then((appointmentData) => {
             const appointmentsData = {
-                'Appointment Time': appointmentData.data().upcoming,
-                Time: appointmentData.data().time
+                Date: appointmentData.data().upcoming + ' @ ' + appointmentData.data().time
             };
             const previousAppointmentData = {
                 Previous: appointmentData.data().previous
@@ -59,6 +75,7 @@ const HomeScreen = () => {
     useEffect(() => {
         getBarberInfo()
         getAppointmentInfo()
+        getUserName()
         }, [])
 
         const upcomingAppointData = {...appointmentInfo, ...barberInfo}
@@ -68,29 +85,33 @@ const HomeScreen = () => {
 
     return(
         <View style={styles.container}>
-            <FirebaseApp />
-            <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
-                <Card.Title style={{ fontSize: 15 }}> Upcoming Appointment </Card.Title>
-                <Card.Divider />
-                { Object.entries(upcomingAppointData).map((onekey, i) => (
+            <Card containerStyle={{ flex: 1, margin: 0}}>
+                <Card.Title style={{ fontSize: 15}}> {userName} </Card.Title>
+                <Card.Divider/>
+                { Object.entries(userInfo).map((onekey, i) => (
                     <>
                         <Text key={i}> {onekey[0]}: {onekey[1]} </Text>
                     </>
                 ))}
-                {/* <Text style={{ textAlign: 'center'}}> No Upcoming Appointments Scheduled </Text> */}
-                
             </Card>
-            <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
-                <Card.Title style={{ fontSize: 15 }}> Previous Appointment </Card.Title>
+            <Card containerStyle={{ flex: 3, borderRadius: 5 }}>
+                <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Upcoming Appointment </Card.Title>
+                <Card.Divider />
+                { Object.entries(upcomingAppointData).map((onekey, i) => (
+                    <>
+                        <Text key={i}> {onekey[1]} </Text>
+                    </>
+                ))}
+                <Text></Text>
+                <Card.Divider />
+                <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Upcoming Appointment </Card.Title>
                 <Card.Divider />
                 { Object.entries(previousAppointmentInfo).map((onekey, i) => (
                     <>
                         <Text style={{ alignContent:'flex-start'}} key={i}> {onekey[0]}: {onekey[1]} </Text>
                     </>
                 ))}
-                
-                    {/* <Text style={{ textAlign: 'center'}}> You do not have any Previous Appointments</Text> */}
-            
+                {/* <Text style={{ textAlign: 'center'}}> No Upcoming Appointments Scheduled </Text> */}
             </Card>
             <Button onPress={() => signOut()} title='Logout' />
         </View>

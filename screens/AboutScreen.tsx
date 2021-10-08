@@ -49,31 +49,28 @@ const HomeScreen = () => {
 
     return(
         <View style={styles.container}>
-            <Card containerStyle={{ flex: 1, borderRadius: 15}}>
+            <Card containerStyle={{ flex: 1, margin: 0 }}>
                 <Card.Title style={{ fontSize: 15}}> {baberName} </Card.Title>
                 <Card.Divider/>
                     <Text>What does Nate want here?</Text>
             </Card>
-            <Card containerStyle={{ flex: 2, borderRadius: 15}}>
-                <Card.Title style={{ fontSize: 15}}> INFO </Card.Title>
-                <Card.Divider/>
+            <Card containerStyle={{ flex: 2.5, borderRadius: 15}}>
+                <Card.Title style={{ fontSize: 15, textAlign:'left'}}> INFO </Card.Title>
                 { Object.entries(barberInfo).map((onekey, i) => (
                     <>
                         <Text key={i}> {onekey[0]}: {onekey[1]} </Text>
                     </>
                 ))}
-            </Card>
-            <Card containerStyle={{ flex: 3, borderRadius: 15}}>
-                <Card.Title style={{ fontSize: 15}}> ADDRESS & HOURS </Card.Title>
-                <Card.Divider/>
+                <Text></Text>
+                <Card.Title style={{ fontSize: 15, textAlign:'left'}}> ADDRESS & HOURS </Card.Title>
                 { Object.entries(barberAddress).map((onekey, i) => (
                     <>
                         <Text key={i}> {onekey[0] == "Address" ? null : `${onekey[0]}:`} {onekey[1]} </Text>
                     </>
                 ))}
             </Card>
-            <Card containerStyle={{ flex: 2, borderRadius: 15}}>
-                <Card.Title style={{ fontSize: 15}}> Haircut Pictures </Card.Title>
+            <Card containerStyle={{ flex: 1, margin: 0, marginTop: 10 }}>
+                <Card.Title style={{ fontSize: 15, textAlign:'left'}}> Haircut Pictures </Card.Title>
                 <Card.Divider/>
                     <Text> Haircut Pictures </Text>
             </Card>
