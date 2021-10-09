@@ -5,6 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
 import CalendarPicker from 'react-native-calendar-picker';
 import moment from 'moment';
+import FirestoreBarberInfoUtil from '../utils/FirestoreBarberInfoUtil';
 
 class AppointmentTimes extends Component {
     state = {
@@ -13,6 +14,7 @@ class AppointmentTimes extends Component {
         showAppointments: false,
         userName: '',
         newPrevious: '',
+        barberInfo: {}
     }
     AppoitnmentTime = {
         '8:00 am': '',
@@ -53,6 +55,7 @@ class AppointmentTimes extends Component {
             userName: '',
             newPrevious: '',
         };
+        this.getBarberInfo()
         this.onDateChange = this.onDateChange.bind(this);
     }
 
@@ -65,10 +68,13 @@ class AppointmentTimes extends Component {
       }
     
     onButtonClick() {
+        const { selectedStartDate } = this.state;
+        if(selectedStartDate) {
         this.onGetData()
         this.setState({
             isLoading: true,
           });
+        }
     }
 
     onTimeClick(value) {
@@ -90,6 +96,16 @@ class AppointmentTimes extends Component {
             this.setState({ final: {...this.AppoitnmentTime, ...this.state.time}})
         }); this.setState({isLoading:true})
     }
+
+    getBarberInfo = () => {
+        FirestoreBarberInfoUtil.getBarberInfo().then((testData) => {
+            const barberData = {
+                Price: testData.data().price,
+                Address: testData.data().location
+            };
+            this.setState({ barberInfo: barberData})
+        });
+    };
 
     getUserId = () => {
     const userData = auth().currentUser;
@@ -146,10 +162,10 @@ class AppointmentTimes extends Component {
                     maxDate={maxDate}
                     //disabledDates={}
                     onDateChange={this.onDateChange} />
-                <View>
-                    <Button onPress={() => this.onButtonClick()} title={`Check Available Times for ${selectedDate}`} />
-                </View>
-                { isLoading &&
+
+                <Button onPress={() => this.onButtonClick()} title={`Check Available Times for ${selectedDate}`} />
+
+                { isLoading && selectedStartDate &&
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                     {
                     Object.entries(final).map((onekey, i) => (
@@ -166,8 +182,10 @@ class AppointmentTimes extends Component {
                     <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
                         <Card.Title style={{ fontSize: 15 }}>{selectedDate} @ {selectedTime}</Card.Title>
                         <Card.Divider />
-                        <Text>Price: $40</Text>
-                        <Text>Location: </Text>
+                        { Object.entries(this.state.barberInfo).map((onekey, i) => (
+                            <Text key={i}>{onekey[0]}: {onekey[1]}</Text>
+                            ))
+                        }
                         <Text>Total time: ~30 minutes</Text>
                         <Button onPress={() => this.scheduleAppoint(selectedDate, selectedTime)} title='Confirm Appointment' />
                     </Card> : 

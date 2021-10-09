@@ -54,26 +54,28 @@ const HomeScreen = () => {
                 <Card.Divider/>
                     <Text>What does Nate want here?</Text>
             </Card>
-            <Card containerStyle={{ flex: 2.5, borderRadius: 15}}>
-                <Card.Title style={{ fontSize: 15, textAlign:'left'}}> INFO </Card.Title>
-                { Object.entries(barberInfo).map((onekey, i) => (
-                    <>
-                        <Text key={i}> {onekey[0]}: {onekey[1]} </Text>
-                    </>
-                ))}
-                <Text></Text>
-                <Card.Title style={{ fontSize: 15, textAlign:'left'}}> ADDRESS & HOURS </Card.Title>
-                { Object.entries(barberAddress).map((onekey, i) => (
-                    <>
-                        <Text key={i}> {onekey[0] == "Address" ? null : `${onekey[0]}:`} {onekey[1]} </Text>
-                    </>
-                ))}
-            </Card>
-            <Card containerStyle={{ flex: 1, margin: 0, marginTop: 10 }}>
-                <Card.Title style={{ fontSize: 15, textAlign:'left'}}> Haircut Pictures </Card.Title>
-                <Card.Divider/>
-                    <Text> Haircut Pictures </Text>
-            </Card>
+            <ScrollView>
+                <Card containerStyle={{ flex: 2.5, borderRadius: 15}}>
+                    <Card.Title style={{ fontSize: 15, textAlign:'left'}}> INFO </Card.Title>
+                    { Object.entries(barberInfo).map((onekey, i) => (
+                        <>
+                            <Text key={i}> {onekey[0]}: {onekey[1]} </Text>
+                        </>
+                    ))}
+                    <Text></Text>
+                    <Card.Title style={{ fontSize: 15, textAlign:'left'}}> ADDRESS & HOURS </Card.Title>
+                    { Object.entries(barberAddress).map((onekey, i) => (
+                        <>
+                            <Text key={i}> {onekey[0] == "Address" ? null : `${onekey[0]}:`} {onekey[1]} </Text>
+                        </>
+                    ))}
+                </Card>
+                <Card containerStyle={{ flex: 1, margin: 0, marginTop: 10 }}>
+                    <Card.Title style={{ fontSize: 15, textAlign:'left'}}> Haircut Pictures </Card.Title>
+                    <Card.Divider/>
+                        <Text> Haircut Pictures </Text>
+                </Card>
+            </ScrollView>
         </View>
     )
 }

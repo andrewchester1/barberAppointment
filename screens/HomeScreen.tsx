@@ -21,11 +21,6 @@ const HomeScreen = () => {
     const [previousAppointmentInfo, setPreviousAppointmentInfo] = useState({});
     const [userInfo, setUserInfo] = useState({});
     const [userName, setUserName] = useState();
-    
-    const signOut = () => {FirebaseUtil.signOut().catch((e) => {
-        console.log(e)
-        alert('Something went wrong')
-    })}
 
     function getUserName() {
         FirestoreUserNameUtil.getUserName().then((userData) => {
@@ -94,26 +89,25 @@ const HomeScreen = () => {
                     </>
                 ))}
             </Card>
-            <Card containerStyle={{ flex: 3, borderRadius: 5 }}>
+            <Card containerStyle={{ flex: 3, borderRadius: 5, marginBottom: 10 }}>
                 <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Upcoming Appointment </Card.Title>
                 <Card.Divider />
-                { Object.entries(upcomingAppointData).map((onekey, i) => (
+                { Object.entries(upcomingAppointData).map((onekey, l) => (
                     <>
-                        <Text key={i}> {onekey[1]} </Text>
+                        <Text key={l}> {onekey[1]} </Text>
                     </>
                 ))}
                 <Text></Text>
                 <Card.Divider />
                 <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Upcoming Appointment </Card.Title>
                 <Card.Divider />
-                { Object.entries(previousAppointmentInfo).map((onekey, i) => (
+                { Object.entries(previousAppointmentInfo).map((onekey, n) => (
                     <>
-                        <Text style={{ alignContent:'flex-start'}} key={i}> {onekey[0]}: {onekey[1]} </Text>
+                        <Text style={{ alignContent:'flex-start'}} key={n}> {onekey[0]}: {onekey[1]} </Text>
                     </>
                 ))}
                 {/* <Text style={{ textAlign: 'center'}}> No Upcoming Appointments Scheduled </Text> */}
             </Card>
-            <Button onPress={() => signOut()} title='Logout' />
         </View>
     )
 }

@@ -7,6 +7,7 @@ import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
 import AppointmentScreen from "./screens/AppointmentScreen";
 import AboutScreen from "./screens/AboutScreen";
+import SettingsScreen from "./screens/SettingsScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -18,6 +19,7 @@ function MainStackNavigator() {
             <Tab.Screen name='Home' component={HomeScreen} />
             <Tab.Screen name='Appointment' component={AppointmentScreen} />
             <Tab.Screen name='About' component={AboutScreen} />
+            <Tab.Screen name='Settings' component={SettingsScreen} />
         </Tab.Navigator>
     )
 }
@@ -33,7 +35,7 @@ export default function AppStack() {
                 ): user ? (
                 <Stack.Screen name="Home" options={{ headerShown: false}} component={MainStackNavigator} /> 
                 ) : (
-                <Stack.Screen name="signin" component={LoginScreen}/>
+                <Stack.Screen name="Sign In" component={LoginScreen}/>
                 )}
             </Stack.Navigator>
         </NavigationContainer>
