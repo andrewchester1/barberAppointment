@@ -130,7 +130,7 @@ class AppointmentTimes extends Component {
 
     addAppointmentToUser = async (selectedDate, selectedTime) => {
         const userData = auth().currentUser;
-        const oldAppointmentData = await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).get()
+        const oldAppointmentData = await firestore().collection('Test').doc(userData.uid).get()
         this.setState({ newPrevious: oldAppointmentData.get('upcoming') })
         this.addAppointmentDataBase(userData, selectedDate, selectedTime)
     }
@@ -141,7 +141,7 @@ class AppointmentTimes extends Component {
             upcoming: selectedDate,
             time: selectedTime,
         };
-        await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).set( appointmentData, {merge: true})
+        await firestore().collection('Test').doc(userData.uid).set( appointmentData, {merge: true})
     }
 
     removeMonSun = () => {

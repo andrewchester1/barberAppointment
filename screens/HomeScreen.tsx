@@ -73,7 +73,7 @@ const HomeScreen = () => {
         const upcomingAppointment = moment(appointmentDateInfo).format('YYYY-MM-DD').toString()
         const dateToday = moment().format('YYYY-MM-DD').toString()
         const userData = auth().currentUser;
-        if (dateToday > upcomingAppointment) {
+        if (dateToday > upcomingAppointment && upcomingAppointment != '') {
             firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).update({previous: upcomingAppointment, upcoming: ''})
         }
     }
