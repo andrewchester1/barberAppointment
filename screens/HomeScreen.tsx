@@ -13,12 +13,16 @@ import UserAppointmentsUtil from '../components/UserAppointments';
 import FirestoreBarberInfoUtil from '../utils/FirestoreBarberInfoUtil';
 import FirestoreUpcomingAppointmentsUtil from '../utils/FirestoreUpcomingAppointmentsUtil';
 import FirestoreUserNameUtil from '../utils/FireStoreUserNameUtil';
+import moment from 'moment';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore'
 
 const HomeScreen = () => {
     const { user } = useContext(LoginContext);
     const [barberInfo, setBarberInfo] = useState({});
-    const [appointmentInfo, setAppointmentInfo] = useState({});
-    const [previousAppointmentInfo, setPreviousAppointmentInfo] = useState({});
+    const [appointmentDateInfo, setAppointmentDateInfo] = useState();
+    const [appointmentTimeInfo, setAppointmentTimeInfo] = useState();
+    const [previousAppointmentInfo, setPreviousAppointmentInfo] = useState();
     const [userInfo, setUserInfo] = useState({});
     const [userName, setUserName] = useState();
 
@@ -53,18 +57,25 @@ const HomeScreen = () => {
 
     function getAppointmentInfo() {
         FirestoreUpcomingAppointmentsUtil.getAppointmentInfo().then((appointmentData) => {
-            const appointmentsData = {
-                Date: appointmentData.data().upcoming + ' @ ' + appointmentData.data().time
-            };
-            const previousAppointmentData = {
-                Previous: appointmentData.data().previous
-            }
-            setAppointmentInfo(appointmentsData)
+            const appointmentDateData =  appointmentData.data().upcoming
+            const appointmentTimeData = appointmentData.data().time
+            const previousAppointmentData =  appointmentData.data().previous
+
+            setAppointmentDateInfo(appointmentDateData)
+            setAppointmentTimeInfo(appointmentTimeData)
             setPreviousAppointmentInfo(previousAppointmentData)
-            console.log('appointmentsData: ', appointmentsData);
-            return appointmentsData;
+            dateCheck()
             // console.log(e)
         });
+    }
+
+    function dateCheck() {
+        const upcomingAppointment = moment(appointmentDateInfo).format('YYYY-MM-DD').toString()
+        const dateToday = moment().format('YYYY-MM-DD').toString()
+        const userData = auth().currentUser;
+        if (dateToday > upcomingAppointment) {
+            firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).update({previous: upcomingAppointment, upcoming: ''})
+        }
     }
 
     useEffect(() => {
@@ -73,7 +84,7 @@ const HomeScreen = () => {
         getUserName()
         }, [])
 
-        const upcomingAppointData = {...appointmentInfo, ...barberInfo}
+        const upcomingAppointData = {appointmentDateInfo, appointmentTimeInfo, ...barberInfo}
         console.log('upcomingAppointData', upcomingAppointData)
 
     const Tab = createBottomTabNavigator();
@@ -92,20 +103,22 @@ const HomeScreen = () => {
             <Card containerStyle={{ flex: 3, borderRadius: 5, marginBottom: 10 }}>
                 <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Upcoming Appointment </Card.Title>
                 <Card.Divider />
-                { Object.entries(upcomingAppointData).map((onekey, l) => (
-                    <>
-                        <Text key={l}> {onekey[1]} </Text>
-                    </>
-                ))}
-                <Text></Text>
+                { appointmentDateInfo ?
+                     Object.entries(upcomingAppointData).map((onekey, l) => (
+                        <>
+                            <Text key={l}> {onekey[1]} </Text>
+                        </>
+                    )) :
+                    <Text>No Upcoming Appointments Scheduled</Text>
+                }
                 <Card.Divider />
-                <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Upcoming Appointment </Card.Title>
+                <Card.Title style={{ fontSize: 15, textAlign:'left' }}> Previous Appointment </Card.Title>
                 <Card.Divider />
-                { Object.entries(previousAppointmentInfo).map((onekey, n) => (
-                    <>
-                        <Text style={{ alignContent:'flex-start'}} key={n}> {onekey[0]}: {onekey[1]} </Text>
-                    </>
-                ))}
+                { previousAppointmentInfo ?
+                    <Text style={{ alignContent:'flex-start'}}> {previousAppointmentInfo} </Text>
+                    :
+                    <Text>No Previous Appointments</Text>
+                }
                 {/* <Text style={{ textAlign: 'center'}}> No Upcoming Appointments Scheduled </Text> */}
             </Card>
         </View>

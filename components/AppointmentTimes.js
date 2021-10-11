@@ -14,15 +14,10 @@ class AppointmentTimes extends Component {
         showAppointments: false,
         userName: '',
         newPrevious: '',
-        barberInfo: {}
+        barberInfo: {},
+        monSunArray: []
     }
     AppoitnmentTime = {
-        '8:00 am': '',
-        '8:30 am': '',
-        '9:00 am': '',
-        '9:30 am': '',
-        '10:00 am': '',
-        '10:30 am': '',
         '11:00 am': '',
         '11:30 am': '',
         '12:00 pm': '',
@@ -40,8 +35,6 @@ class AppointmentTimes extends Component {
         '6:00 pm': '',
         '6:30 pm': '',
         '7:00 pm': '',
-        '7:30 pm': '',
-        '8:00 pm': '',
     }
     constructor(props) {
         super(props);
@@ -54,8 +47,10 @@ class AppointmentTimes extends Component {
             selectedTime: null,
             userName: '',
             newPrevious: '',
+            monSunArray: []
         };
         this.getBarberInfo()
+        this.removeMonSun()
         this.onDateChange = this.onDateChange.bind(this);
     }
 
@@ -149,18 +144,46 @@ class AppointmentTimes extends Component {
         await firestore().collection('Test').doc(userData.uid).collection('Appointments').doc(userData.uid).set( appointmentData, {merge: true})
     }
 
+    removeMonSun = () => {
+        let dateArray = []
+        let currentDate = moment()
+        const stopDate = moment().add(30, 'days');
+        console.log('stopDate', stopDate)
+        while (currentDate <= stopDate) {
+            if(moment(currentDate).format('dddd') == 'Sunday' || moment(currentDate).format('dddd') == 'Monday' ) {
+                dateArray.push( moment(currentDate).format('YYYY-MM-DD'))
+            }
+            currentDate = moment(currentDate).add(1, 'days');
+        }
+        console.log('dateArray', dateArray)
+        this.setState({ monSunArray: [this.state.monSunArray.push(...dateArray)] })
+        console.log('monSunArray', this.state.monSunArray)
+        this.someFunction()
+    }
+
+    someFunction = () => {
+        const items = [];
+        new Array(10).fill().forEach((acc, index) => {
+          items.push(moment( {hour: index} ).format('h:mm A'));
+          items.push(moment({ hour: index, minute: 30 }).format('h:mm A'));
+        })
+        console.log('items ', items)
+        return items;
+      }
+
     render() {
-        const { selectedStartDate, isLoading, final, confirmTime, selectedTime } = this.state;
+        const { selectedStartDate, isLoading, final, confirmTime, selectedTime, monSunArray } = this.state;
         const selectedDate = selectedStartDate ? moment(selectedStartDate).format('YYYY-MM-DD').toString() : '';
         const today = moment()
         let minDate = new Date()
         let maxDate = today.add(30, 'day');
+        console.log('monSunArray Testtttttttt', monSunArray)
         return (
             <><View style={{ flex: 1 }}>
                 <CalendarPicker
                     minDate={minDate}
                     maxDate={maxDate}
-                    //disabledDates={}
+                    disabledDates={monSunArray}
                     onDateChange={this.onDateChange} />
 
                 <Button onPress={() => this.onButtonClick()} title={`Check Available Times for ${selectedDate}`} />
