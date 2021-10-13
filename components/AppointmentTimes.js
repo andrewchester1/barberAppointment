@@ -162,10 +162,14 @@ class AppointmentTimes extends Component {
     }
 
     someFunction = () => {
+        const minTime = '9:00 AM'
         const items = [];
         new Array(10).fill().forEach((acc, index) => {
+            if(moment( {hour: index} ).format('h:mm A') > moment(minTime).format('h:mm A')) {
           items.push(moment( {hour: index} ).format('h:mm A'));
           items.push(moment({ hour: index, minute: 30 }).format('h:mm A'));
+          console.log('minTime', moment(newTime).add(30, 'minutes'))
+            }  
         })
         console.log('items ', items)
         return items;
