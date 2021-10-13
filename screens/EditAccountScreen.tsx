@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import FirebaseUtil from '../utils/FirebaseUtil';
 import { LoginContext } from '../utils/LoginProvider';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,6 +8,7 @@ import AppointmentTimes from '../components/AppointmentTimes';
 import { ListItem } from 'react-native-elements';
 import { firebase } from '@react-native-firebase/firestore';
 import { ScrollView } from 'react-native-gesture-handler';
+import FirestoreDeleteDocUtil from '../utils/FirestoreDeleteDocUtil';
 
 const EditAccountScreen = () => {
     const [userInfo, setUserInfo] = useState([]);
@@ -19,16 +20,29 @@ const EditAccountScreen = () => {
         setUserInfo(data)
     }
 
+    const deleteUser = (user_id: any) => {FirestoreDeleteDocUtil.deleteDoc('Test', user_id).catch((e) => {
+        console.log(e)
+        alert('Unable to sign out try again.')
+    })}
+
     useEffect(() => {
         getUsers()
         }, [])
+
+        //onPress={() => (deleteUser(onekey.user_id))
 
     return(
         <View style={styles.container}>
             <ScrollView>
                 { userInfo &&
                     userInfo.map((onekey, i) => (
-                        <><ListItem bottomDivider>
+                        <><ListItem bottomDivider key={i} onPress={() => Alert.alert('Delete', `Are you sure you want to delete ${"\n"}Account Name: ${onekey.name ? onekey.name : 'N/A'} ${"\n"}Account Id: ${onekey.user_id ? onekey.user_id : 'N/A'}`, 
+                        [
+                            {
+                              text: "Cancel"
+                            },
+                            { text: "Delete User", onPress: () => (deleteUser(onekey.user_id)) }
+                          ]) }>
                             <ListItem.Content>
                                 <ListItem.Title style={{ fontWeight: 'bold', textAlign: 'center', alignSelf: 'center'}} key={i}>Name: {onekey.name} </ListItem.Title>
                             </ListItem.Content>

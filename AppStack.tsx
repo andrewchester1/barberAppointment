@@ -14,6 +14,7 @@ import FirestoreUserNameUtil from "./utils/FireStoreUserNameUtil";
 import AdminScreen from "./screens/AdminScreen";
 import EditAccountScreen from "./screens/EditAccountScreen";
 import { Button } from "react-native";
+import AdminCalendarScreen from "./screens/AdminCalendarScreen";
 
 const Tab = createBottomTabNavigator()
 
@@ -39,6 +40,7 @@ function MainStackNavigator() {
                 </> :
                 <>
                     <Tab.Screen name='About' component={AboutScreen} />
+                    <Tab.Screen name='Calendar' component={AdminCalendarScreen} />
                     <Tab.Screen name='Admin' component={AdminScreen} />
                 </>
             } 
