@@ -1,45 +1,50 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { Card } from 'react-native-elements'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
+import moment from 'moment';
+import CalendarStrip from 'react-native-calendar-strip'
 
-class FirebaseApp extends Component {
-    state = {
-        Test: {
-            name: "",
-            email: "",
-            phone: ""
-        }
-    }
+class UserName extends Component {
     constructor(props) {
         super(props);
-        this.getUser();
-        const userData = auth().currentUser;
-        this.subscriber = firestore().collection("Test").doc
-        (userData.uid).onSnapshot(doc => {
-            this.setState({
-                Test: {
-                    name: doc.data().name,
-                    email: doc.data().email,
-                    phone: doc.data().phone
-            }})
-        })
-    }
-    getUser = async () => {
-        const userData = auth().currentUser;
-        const userDocument = await firestore().collection("Test").doc(userData.uid).get()
-    }
-    render() {
+        let startDate = moment(); 
+        this.state = {
+          selectedDate: moment(),
+          startDate,
+        };
+      }
+    
+      onDateSelected = selectedDate => {
+        this.setState({ selectedDate });
+        this.setState({ formattedDate: selectedDate.format('YYYY-MM-DD')});
+      }
+    
+      render() {
         return (
-            <Card containerStyle={{ flex: 2, borderRadius: 15}}>
-                <Card.Title style={{ fontSize: 15}}> Account Name: {this.state.Test.name} </Card.Title>
-                <Card.Divider/>
-                    <Text> Email: {this.state.Test.email} </Text>
-                    <Text> Phone: {this.state.Test.phone} </Text>
-            </Card>
-        )
+          <View style={{flex: 1}}>
+            <CalendarStrip
+              scrollable
+              style={{height:100, paddingTop: 10, paddingBottom: 10}}
+              calendarHeaderStyle={{color: 'white'}}
+              calendarColor={'grey'}
+              dateNumberStyle={{color: 'white'}}
+              dateNameStyle={{color: 'white'}}
+              iconContainer={{flex: 0.1}}
+              customDatesStyles={this.state.customDatesStyles}
+              highlightDateNameStyle={{color: 'white'}}
+              highlightDateNumberStyle={{fontWeight: 'bold', color: 'white'}}
+              highlightDateContainerStyle={{backgroundColor: 'black'}}
+              selectedDate={this.state.selectedDate}
+              onDateSelected={this.onDateSelected}
+            />
+    
+            <Text style={{fontSize: 15, alignSelf: 'center'}}>Selected Date: {this.state.formattedDate}</Text>
+            
+          </View>
+        );
+      }
     }
-}
 
-export default FirebaseApp
+    export default UserName

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { createNativeStackNavigator  } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native'
 import { LoginContext } from "./utils/LoginProvider";
@@ -18,20 +18,21 @@ import AdminCalendarScreen from "./screens/AdminCalendarScreen";
 
 const Tab = createBottomTabNavigator()
 
+let admin
+
 function isAdmin() {
-    let admin
     FirestoreUserNameUtil.getUserName().then((userData) => {
         admin = userData.data().admin
         
     })
-    return admin
 }
 
 function MainStackNavigator() {
-    const admin = isAdmin()
+    isAdmin()
+    console.log('Admin', admin)
     return (
         <Tab.Navigator>
-            { admin ?
+            { admin == undefined && admin == false ?
                 <>
                     <Tab.Screen name='Home' component={HomeScreen} />
                     <Tab.Screen name='Appointment' component={AppointmentScreen} />
