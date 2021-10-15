@@ -32,7 +32,7 @@ function MainStackNavigator() {
     console.log('Admin', admin)
     return (
         <Tab.Navigator>
-            { admin == undefined && admin == false ?
+            { admin == undefined || admin == false ?
                 <>
                     <Tab.Screen name='Home' component={HomeScreen} />
                     <Tab.Screen name='Appointment' component={AppointmentScreen} />

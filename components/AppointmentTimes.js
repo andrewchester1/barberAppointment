@@ -15,8 +15,40 @@ class AppointmentTimes extends Component {
         userName: '',
         newPrevious: '',
         barberInfo: {},
-        monSunArray: []
+        monSunArray: [],
+        intervals: {}
     }
+
+    createAvailableTimes = (start, end) => {
+        const startTime = moment(start, 'HH:mm a')
+        const endTime = moment(end, 'HH:mm a')
+        console.log('time', startTime)
+        let newIntervals = {}
+        while (startTime <= endTime) {
+            let obj = {}
+            //obj[moment(startTime, 'HH:mm a').format("hh:mm A").toString()] =  ''
+            //console.log('obj', obj)
+            let newobj = {[moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '')] : '' }
+            newIntervals = {...newIntervals, ...newobj}
+            startTime.add(30, 'minutes')
+        }
+        this.setState({intervals: this.state.intervals = newIntervals })
+         console.log('newIntervals', newIntervals)
+        console.log('intervals', this.state.intervals)
+        this.onGetData()
+      }
+
+    splitHours = (hours) => {
+        const { selectedStartDate } = this.state;
+        const weekDay = moment(selectedStartDate, "YYYY-MM-DD HH:mm:ss")
+        const newWeekDay = weekDay.format('dddd')
+        firestore().collection('Barber').doc('Nate').get()
+        var arr = hours.toUpperCase().split("-").map(item => item.trim());
+        console.log('SplitHours', arr)
+        console.log('weekDay', newWeekDay)
+        this.createAvailableTimes(arr[0], arr[1])
+    }
+
     AppoitnmentTime = {
         '11:00 am': '',
         '11:30 am': '',
@@ -47,11 +79,13 @@ class AppointmentTimes extends Component {
             selectedTime: null,
             userName: '',
             newPrevious: '',
-            monSunArray: []
+            monSunArray: [],
+            intervals: {}
         };
         this.getBarberInfo()
         this.removeMonSun()
         this.onDateChange = this.onDateChange.bind(this);
+        // this.splitHours('11:00 am - 7:00 pm')
     }
 
     onDateChange(date) {
@@ -65,7 +99,7 @@ class AppointmentTimes extends Component {
     onButtonClick() {
         const { selectedStartDate } = this.state;
         if(selectedStartDate) {
-        this.onGetData()
+        this.splitHours('11:00 am - 7:00 pm')
         this.setState({
             isLoading: true,
           });
@@ -88,8 +122,10 @@ class AppointmentTimes extends Component {
         .collection(moment(selectedStartDate).format('MMM YY'))
         .doc(moment(selectedStartDate).format('YYYY-MM-DD')).onSnapshot(doc => {
             this.setState({ time: doc.data() })
-            this.setState({ final: {...this.AppoitnmentTime, ...this.state.time}})
-        }); this.setState({isLoading:true})
+            this.setState({ final: {...this.state.intervals, ...this.state.time} })
+            console.log('time', this.state.time)
+            console.log('final', this.state.final)
+        }); this.setState({isLoading:true}), console.log('final', this.state.final)
     }
 
     getBarberInfo = () => {
@@ -158,22 +194,7 @@ class AppointmentTimes extends Component {
         console.log('dateArray', dateArray)
         this.setState({ monSunArray: [this.state.monSunArray.push(...dateArray)] })
         console.log('monSunArray', this.state.monSunArray)
-        this.someFunction()
     }
-
-    someFunction = () => {
-        const minTime = '9:00 AM'
-        const items = [];
-        new Array(10).fill().forEach((acc, index) => {
-            if(moment( {hour: index} ).format('h:mm A') > moment(minTime).format('h:mm A')) {
-          items.push(moment( {hour: index} ).format('h:mm A'));
-          items.push(moment({ hour: index, minute: 30 }).format('h:mm A'));
-          console.log('minTime', moment(newTime).add(30, 'minutes'))
-            }  
-        })
-        console.log('items ', items)
-        return items;
-      }
 
     render() {
         const { selectedStartDate, isLoading, final, confirmTime, selectedTime, monSunArray } = this.state;
@@ -182,6 +203,7 @@ class AppointmentTimes extends Component {
         let minDate = new Date()
         let maxDate = today.add(30, 'day');
         console.log('monSunArray Testtttttttt', monSunArray)
+        console.log('isLoading', isLoading)
         return (
             <><View style={{ flex: 1 }}>
                 <CalendarPicker
