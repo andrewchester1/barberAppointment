@@ -9,25 +9,30 @@ import { ListItem } from 'react-native-elements';
 import UserName from '../components/UserName'
 
 const AppointmentScreen = () => {
-    const [dateInfo, setDateInfo] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [calendarData, setCalendarData] = useState([]);
 
     async function onGetData(selectedDate) {
-        await firestore()
-        .collection(moment(selectedDate).format('MMM YY'))
-        .doc(moment(selectedDate).format('YYYY-MM-DD')).get().then((data) => {
-            const times = data.data()
-            setDateInfo(times), setIsLoading(false)
+      await firestore()
+        .collection('Calendar')
+        .doc(moment(selectedDate).format('MMM YY'))
+        .collection(moment(selectedDate).format('YYYY-MM-DD')).get()
+        .then(snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+              const tempData = doc.data();
+              data.push(tempData)
+            });
+            setIsLoading(false)
+            setCalendarData(data)
         })
-        // const times = data.data()
-        // setDateInfo(times), setIsLoading(false)
     }
 
     console.log('isLoading',isLoading)
+    console.log('calendarData',calendarData)
 
     useEffect(() => {
         setSelectedDate(moment())
-        console.log('dateInfo',dateInfo)
     }, [])
 
     const [selectedDate, setSelectedDate] = useState(moment());
@@ -41,10 +46,9 @@ const AppointmentScreen = () => {
       }
     
       const deleteAppointment = (onekey: any) => {
-        //let field_id = onekey
-        firestore().collection('Oct 21').doc(selectedDate.format('YYYY-MM-DD')).update({
-            [onekey]: firestore.FieldValue.delete(),
-          }).then(() => {
+        firestore().collection('Calendar')
+        .doc(moment(selectedDate).format('MMM YY'))
+        .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(onekey).delete().then(() => {
             console.log('Appointment Deleted');
             Alert.alert('Success', 'Appointment Deleted')
           }).catch((e) => {
@@ -56,7 +60,6 @@ const AppointmentScreen = () => {
 
     return(
         <View style={styles.container}> 
-            {/* <UserName /> */}
             <View style={{flex: 1}}>
                 <CalendarStrip
                 scrollable
@@ -72,39 +75,36 @@ const AppointmentScreen = () => {
                 selectedDate={selectedDate}
                 onDateSelected={onDateSelected}
                 />
-        
-                <Text style={{fontSize: 15, alignSelf: 'center'}}>Selected Date: {formattedDate}</Text>
+                <Text style={{fontSize: 15, alignSelf: 'center'}}>Selected Date: {formattedDate ? formattedDate : 'Choose a date'}</Text>
                 
             </View>
             <View style={{flex: 4}}>
-                {!isLoading && dateInfo ?
+                {!isLoading && calendarData ?
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                         {
-                        Object.entries(dateInfo).map((onekey, i) => (
-                            <ListItem key={i} bottomDivider onPress={() => Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time @ ${onekey[0] ? onekey[0] : 'N/A'} ${"\n"} with Client: ${onekey[1] ? onekey[1] : 'N/A'}`, 
+                        calendarData.map((anObjectMapped, index) => (
+                            <ListItem key={`${anObjectMapped.name} ${anObjectMapped.phone} ${anObjectMapped.time} ${anObjectMapped.comment}`} bottomDivider 
+                            onPress={() => Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time @ ${anObjectMapped.time ? anObjectMapped.time : 'N/A'} ${"\n"} with Client: ${anObjectMapped.name ? anObjectMapped.name : 'N/A'}`, 
                             [
                                 {
                                   text: "Cancel"
                                 },
-                                { text: "Delete Appointment", onPress: () => (deleteAppointment(onekey[0])) }
+                                { text: "Delete Appointment", onPress: () => (deleteAppointment(anObjectMapped.time)) }
                               ]) }> 
                                 <ListItem.Content>
-                                    <ListItem.Title>{onekey[0]}</ListItem.Title>
-                                    <ListItem.Subtitle>Client: {onekey[1]}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Comments: </ListItem.Subtitle>
+                                    <ListItem.Title>{anObjectMapped.time} {console.log('calendarData', calendarData)}</ListItem.Title>
+                                    <ListItem.Subtitle>Client: {anObjectMapped.name}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Comments: {anObjectMapped.comment}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Comments: {anObjectMapped.phone}</ListItem.Subtitle>
                                 </ListItem.Content>
                             </ListItem>
                             ))
                         }  
                     </ScrollView > 
-                    : isLoading && dateInfo ? 
+                    : isLoading && 
                     <ActivityIndicator size="large" color="#0000ff" />
-                    : 
-                    <Text>No Appointments Found</Text>
                 }
             </View>
-          
-            
         </View>
     )
 }

@@ -15,6 +15,7 @@ import AdminScreen from "./screens/AdminScreen";
 import EditAccountScreen from "./screens/EditAccountScreen";
 import { Button } from "react-native";
 import AdminCalendarScreen from "./screens/AdminCalendarScreen";
+import AdminAddAppointmentScreen from "./screens/AdminAddAppointmentScreen"
 
 const Tab = createBottomTabNavigator()
 
@@ -41,6 +42,7 @@ function MainStackNavigator() {
                 </> :
                 <>
                     <Tab.Screen name='About' component={AboutScreen} />
+                    <Tab.Screen name='Add Appointments' component={AdminAddAppointmentScreen} />
                     <Tab.Screen name='Calendar' component={AdminCalendarScreen} />
                     <Tab.Screen name='Admin' component={AdminScreen} />
                 </>
