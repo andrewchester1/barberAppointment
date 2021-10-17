@@ -1,19 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import FirebaseUtil from '../utils/FirebaseUtil';
-import { LoginContext } from '../utils/LoginProvider';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import firestore from '@react-native-firebase/firestore'
 import moment from 'moment';
 import { Card, ListItem } from 'react-native-elements';
-import UserName from '../components/UserName'
 import { TextInput } from 'react-native-gesture-handler';
 
 const AdminAddAppointmentScreen = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [calendarData, setCalendarData] = useState([]);
-
-    console.log('calendarData',calendarData)
+    const [number, onChangeNumber] = useState('');
+    const [name, onChangeName] = useState('');
+    const [time, onChangeTime] = useState('');
+    const [comment, onChangeComment] = useState('');
 
     useEffect(() => {
         setSelectedDate(moment())
@@ -28,10 +27,27 @@ const AdminAddAppointmentScreen = () => {
         setIsLoading(true)
       }
 
-    const addAppointmentToDatabase = (time, name, comment, phone) => {
+      const scheduleAppoint =  () => {
+        const userAppointmentInfo = {
+            name: name,
+            comment: comment,
+            time : time,
+            phone : number
+        };
 
+        firestore()
+        .collection('Calendar')
+        .doc(moment(formattedDate).format('MMM YY'))
+        .collection(moment(formattedDate).format('YYYY-MM-DD')).doc(moment(time, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, ''))
+        .set(userAppointmentInfo, {merge: true})
+        .then(() => {
+            console.log('It worked!!!!!')
+            alert(`Thanks , your appointment has been scheduled`)
+        }).catch((error) => {
+            console.log('Error updating the document: ', error)
+            alert('Something went wrong try again')
+        }); 
     }
-    
 
     return(
         <View style={styles.container}> 
@@ -58,14 +74,34 @@ const AdminAddAppointmentScreen = () => {
                         <Card.Title>Selected Date: {formattedDate}</Card.Title>
                         <Card.Divider/>
                         <Text>Choose a time for the appointment</Text>
-                        <TextInput style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} />
+                        <TextInput 
+                        style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} 
+                        onChangeText={onChangeTime}
+                        value={time}
+                        />
+
                         <Text>Name of Client</Text>
-                        <TextInput style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} />
+                        <TextInput 
+                        style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} 
+                        onChangeText={onChangeName}
+                        value={name}
+                        />
+
                         <Text>Phone Number of Client</Text>
-                        <TextInput style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} />
+                        <TextInput 
+                        style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} 
+                        onChangeText={onChangeNumber}
+                        value={number}
+                        />
+
                         <Text>Comment for Haircut</Text>
-                        <TextInput style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} />
-                        <Button title={'Add Appointment'} onPress={() => 'addAppointmentToDatabase()'}/>
+                        <TextInput 
+                        style={{borderColor: 'Black', borderWidth: 1, marginBottom: 10}} 
+                        onChangeText={onChangeComment}
+                        value={comment}
+                        />
+
+                        <Button title={'Add Appointment'} onPress={() => scheduleAppoint()}/>
                     </Card>
                     : <Text style={{ alignSelf: 'center' }}>Choose date for appointment</Text>
                 }

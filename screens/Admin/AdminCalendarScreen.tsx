@@ -1,16 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import FirebaseUtil from '../utils/FirebaseUtil';
-import { LoginContext } from '../utils/LoginProvider';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import firestore from '@react-native-firebase/firestore'
 import moment from 'moment';
 import { ListItem } from 'react-native-elements';
-import UserName from '../components/UserName'
 
 const AppointmentScreen = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [calendarData, setCalendarData] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(moment());
+    const [formattedDate, setFormattedDate] = useState();
 
     async function onGetData(selectedDate) {
       await firestore()
@@ -28,18 +27,12 @@ const AppointmentScreen = () => {
         })
     }
 
-    console.log('isLoading',isLoading)
-    console.log('calendarData',calendarData)
-
     useEffect(() => {
         setSelectedDate(moment())
     }, [])
-
-    const [selectedDate, setSelectedDate] = useState(moment());
-    const [formattedDate, setFormattedDate] = useState();
     
       const onDateSelected = selectedDate => {
-        setSelectedDate(selectedDate);
+        setSelectedDate(selectedDate.format('YYYY-MM-DD'));
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
         setIsLoading(true)
         onGetData(selectedDate)
@@ -92,7 +85,7 @@ const AppointmentScreen = () => {
                                 { text: "Delete Appointment", onPress: () => (deleteAppointment(anObjectMapped.time)) }
                               ]) }> 
                                 <ListItem.Content>
-                                    <ListItem.Title>{anObjectMapped.time} {console.log('calendarData', calendarData)}</ListItem.Title>
+                                    <ListItem.Title>{anObjectMapped.time} </ListItem.Title>
                                     <ListItem.Subtitle>Client: {anObjectMapped.name}</ListItem.Subtitle>
                                     <ListItem.Subtitle>Comments: {anObjectMapped.comment}</ListItem.Subtitle>
                                     <ListItem.Subtitle>Comments: {anObjectMapped.phone}</ListItem.Subtitle>

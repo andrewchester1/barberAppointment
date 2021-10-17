@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Card, ListItem, Button, Icon } from 'react-native-elements'
-import FirebaseUtil from "../utils/FirebaseUtil";
-import FirestoreUserNameUtil from "../utils/FireStoreUserNameUtil";
+import FirebaseUtil from "../../utils/FirebaseUtil";
+import FirestoreUserNameUtil from "../../utils/FireStoreUserNameUtil";
 import auth from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
 
@@ -27,8 +27,7 @@ const AdminScreen = ({navigation}) => {
             [`${userDataType}`] : newUserInfo
         }
         const userData = auth().currentUser;
-        const test = firestore().collection('Test').doc(userData.uid).update(updateUserData);
-        console.log('Test: ', test)
+        firestore().collection('Test').doc(userData.uid).update(updateUserData);
     }
 
     function getUserData() {
@@ -74,6 +73,11 @@ const AdminScreen = ({navigation}) => {
             <ListItem bottomDivider onPress={() => navigation.navigate('EditAccountScreen')}>
                 <ListItem.Content>
                     <ListItem.Title style={{ fontWeight: 'bold' }}>View Clients</ListItem.Title>
+                </ListItem.Content>
+            </ListItem>
+            <ListItem bottomDivider onPress={() => navigation.navigate('AdminEditProfileScreen')}>
+                <ListItem.Content>
+                    <ListItem.Title style={{ fontWeight: 'bold' }}>Edit Profile</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
             <ListItem bottomDivider>

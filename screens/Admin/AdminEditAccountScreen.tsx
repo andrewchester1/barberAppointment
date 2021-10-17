@@ -1,14 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import FirebaseUtil from '../utils/FirebaseUtil';
-import { LoginContext } from '../utils/LoginProvider';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import AppointmentCalendar from '../components/AppointmentCalendar';
-import AppointmentTimes from '../components/AppointmentTimes';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { firebase } from '@react-native-firebase/firestore';
 import { ScrollView } from 'react-native-gesture-handler';
-import FirestoreDeleteDocUtil from '../utils/FirestoreDeleteDocUtil';
+import FirestoreDeleteDocUtil from '../../utils/FirestoreDeleteDocUtil';
 
 const EditAccountScreen = () => {
     const [userInfo, setUserInfo] = useState([]);
@@ -16,7 +11,6 @@ const EditAccountScreen = () => {
     async function getUsers() {
         const snapshot = await firebase.firestore().collection('Test').get()
         const data = snapshot.docs.map(doc => doc.data());
-        console.log('data', data)
         setUserInfo(data)
     }
 
@@ -28,8 +22,6 @@ const EditAccountScreen = () => {
     useEffect(() => {
         getUsers()
         }, [])
-
-        //onPress={() => (deleteUser(onekey.user_id))
 
     return(
         <View style={styles.container}>

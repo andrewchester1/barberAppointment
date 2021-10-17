@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, Button, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Button, ActivityIndicator, TextInput } from 'react-native';
 import { Card, ListItem } from 'react-native-elements'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
@@ -13,11 +13,13 @@ class AppointmentTimes extends Component {
         final: {},
         showAppointments: false,
         userName: '',
+        phone: '',
         newPrevious: '',
         barberInfo: {},
         monSunArray: [],
         intervals: {},
-        availibleTime: ''
+        availibleTime: '',
+        comment: ''
     }
 
     createAvailableTimes = (start, end) => {
@@ -73,10 +75,12 @@ class AppointmentTimes extends Component {
             confirmTime: false,
             selectedTime: null,
             userName: '',
+            phone: '',
             newPrevious: '',
             monSunArray: [],
             intervals: {},
-            availibleTime: ''
+            availibleTime: '',
+            comment: ''
         };
         this.getBarberInfo()
         this.removeMonSun()
@@ -142,19 +146,25 @@ class AppointmentTimes extends Component {
     getUserId = () => {
     const userData = auth().currentUser;
         firestore().collection("Test").doc(userData.uid).onSnapshot(doc => {
-            this.setState({ userName: doc.data().name }); 
+            this.setState({ userName: doc.data().name });
+            this.setState({ phone: doc.data().phone}) 
         })
     }
 
     scheduleAppoint = async (selectedDate, selectedTime) => {
         const newSelectedTime = selectedTime
         const userAppointmentInfo = {
-            [`${newSelectedTime}`] : this.state.userName
+            name: this.state.userName,
+            comment: this.state.comment,
+            time : selectedTime,
+            phone : this.state.phone
         };
 
-        const test = await firestore()
-        .collection(moment(selectedDate).format('MMM YY'))
-        .doc(moment(selectedDate).format('YYYY-MM-DD')).set(userAppointmentInfo, {merge: true})
+        await firestore()
+        .collection('Calendar')
+        .doc(moment(selectedDate).format('MMM YY'))
+        .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(selectedTime)
+        .set(userAppointmentInfo, {merge: true})
         .then(() => {
             this.addAppointmentToUser(selectedDate, selectedTime)
             console.log('It worked!!!!!')
@@ -194,6 +204,9 @@ class AppointmentTimes extends Component {
         this.setState({ monSunArray: [this.state.monSunArray.push(...dateArray)] })
     }
 
+    handleComment = (text) => {
+        this.setState({ comment: text })
+    }
     render() {
         const { selectedStartDate, isLoading, final, confirmTime, selectedTime, monSunArray } = this.state;
         const selectedDate = selectedStartDate ? moment(selectedStartDate).format('YYYY-MM-DD').toString() : '';
@@ -232,6 +245,11 @@ class AppointmentTimes extends Component {
                             ))
                         }
                         <Text>Total time: ~30 minutes</Text>
+                        <TextInput
+                            // style={styles.input}
+                            onChangeText={this.handleComment}
+                            placeholder="Comment"
+                        />
                         <Button onPress={() => this.scheduleAppoint(selectedDate, selectedTime)} title='Confirm Appointment' />
                     </Card> : 
                     <View></View>

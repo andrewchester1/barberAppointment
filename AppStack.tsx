@@ -4,18 +4,18 @@ import { NavigationContainer } from '@react-navigation/native'
 import { LoginContext } from "./utils/LoginProvider";
 import LoadingScreen from "./screens/LoadingScreen";
 import LoginScreen from "./screens/LoginScreen";
-import HomeScreen from "./screens/HomeScreen";
-import AppointmentScreen from "./screens/AppointmentScreen";
-import AboutScreen from "./screens/AboutScreen";
-import SettingsScreen from "./screens/SettingsScreen";
+import HomeScreen from "./screens/Client/HomeScreen";
+import AppointmentScreen from "./screens/Client/AppointmentScreen";
+import AboutScreen from "./screens/Client/AboutScreen";
+import SettingsScreen from "./screens/Client/SettingsScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FirestoreUserNameUtil from "./utils/FireStoreUserNameUtil";
-import AdminScreen from "./screens/AdminScreen";
-import EditAccountScreen from "./screens/EditAccountScreen";
-import { Button } from "react-native";
-import AdminCalendarScreen from "./screens/AdminCalendarScreen";
-import AdminAddAppointmentScreen from "./screens/AdminAddAppointmentScreen"
+import AdminScreen from "./screens/Admin/AdminSettingScreen";
+import EditAccountScreen from "./screens/Admin/AdminEditAccountScreen";
+import AdminCalendarScreen from "./screens/Admin/AdminCalendarScreen";
+import AdminAddAppointmentScreen from "./screens/Admin/AdminAddAppointmentScreen"
+import AdminEditProfileScreen from "./screens/Admin/AdminEditProfileScreen";
 
 const Tab = createBottomTabNavigator()
 
@@ -30,7 +30,6 @@ function isAdmin() {
 
 function MainStackNavigator() {
     isAdmin()
-    console.log('Admin', admin)
     return (
         <Tab.Navigator>
             { admin == undefined || admin == false ?
@@ -67,6 +66,7 @@ export default function AppStack() {
                 <Stack.Screen
                     name="EditAccountScreen"
                     component={EditAccountScreen}/>
+                <Stack.Screen name='AdminEditProfileScreen' component={AdminEditProfileScreen} />
                 </>
                 ) : (
                 <Stack.Screen name="Sign In" component={LoginScreen}/>
