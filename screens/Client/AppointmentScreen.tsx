@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, ScrollView, TextInput, Button } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TextInput, Button, ActivityIndicator } from 'react-native';
 import AppointmentTimes from '../../components/AppointmentTimes';
 import CalendarStrip from 'react-native-calendar-strip';
 import { color } from 'react-native-elements/dist/helpers';
@@ -10,7 +10,6 @@ import FirestoreBarberInfoUtil from '../../utils/FirestoreBarberInfoUtil';
 import auth from '@react-native-firebase/auth'
 
 const AppointmentScreen = () => {
-
     const [isLoading, setIsLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [formattedDate, setFormattedDate] = useState();
@@ -32,19 +31,22 @@ const AppointmentScreen = () => {
         const weekDay = moment(selectedDate, "YYYY-MM-DD HH:mm:ss")
         const newWeekDay = weekDay.format('dddd').toString()
         console.log('newWeekDay', newWeekDay)
-        firestore().collection('Barber').doc('Nate').get().then((doc) => {
-            let availibility = {'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''}
+        let availibility = {'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''}
+        await firestore().collection('Barber').doc('Nate').get().then((doc) => {
             availibility = {...availibility, ...doc.data()}
-            console.log('availibility', availibility)
-            var arr = availibility[newWeekDay].toUpperCase().split("-").map(item => item.trim());
-            console.log('arr', arr)
-            createAvailableTimes(arr[0], arr[1])
+            const arr = availibility[newWeekDay]
+            console.log('arr', availibility[newWeekDay])
         })
+        console.log('availibility', availibility)
+        createAvailableTimes(availibility, newWeekDay)
     }
-
-    const createAvailableTimes = (start, end) => {
-        const startTime = moment(start, 'HH:mm a')
-        const endTime = moment(end, 'HH:mm a')
+//.toString().toUpperCase().split("-").map(item => item.trim());
+    const createAvailableTimes = (availibility, newWeekDay) => {
+        var arr = availibility[newWeekDay]
+        console.log('arr', arr)
+        const startTime = moment(arr[0], 'HH:mm a')
+        const endTime = moment(arr[1], 'HH:mm a')
+        console.log('startTime', startTime)
         let newIntervals = {}
         while (startTime <= endTime) {
             let newobj = {[moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '')] : '' }
@@ -105,12 +107,22 @@ const AppointmentScreen = () => {
 
     const [userName, setUserName] = useState('')
     const [userPhone, setUserPhone] = useState('')
+    const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
+    const [loading, setLoading] = useState(Boolean);
 
-    const getUserId = () => {
+    const getUserId = async () => {
     const userData = auth().currentUser;
-        firestore().collection("Test").doc(userData.uid).onSnapshot(doc => {
+        await firestore().collection("Test").doc(userData.uid).onSnapshot(doc => {
             setUserName(doc.data().name );
             setUserPhone( doc.data().phone) 
+            console.log('setUserName', setUserName)
+        })
+        
+            await firestore().collection('Barber').doc('Nate').get().then((doc) => {
+            const databaseAvailibility = {...doc.data()}
+            console.log('databaseAvailibility', availibility)
+            //const arr = availibility[newWeekDay]
+            return setLoading(false), setAvailibility({...availibility, ...databaseAvailibility})
         })
     }
 
@@ -160,64 +172,61 @@ const AppointmentScreen = () => {
     useEffect(() => {
         removeMonSun()
         getUserId()
+        setLoading(true)
+        console.log('arr', availibility)
     }, [])
 
     const [text, onChangeText] = useState('')
 
     return(
         <View style={styles.container}>
-          <View style={{flex: 1}}>
-                <CalendarStrip
-                scrollable
-                style={{height:100, paddingTop: 10, paddingBottom: 10}}
-                calendarHeaderStyle={{color: 'white', fontSize: 17}}
-                calendarColor={'grey'}
-                dateNumberStyle={{color: 'white'}}
-                dateNameStyle={{color: 'white'}}
-                iconContainer={{flex: 0.1}}
-                highlightDateNameStyle={{color: 'white'}}
-                highlightDateNumberStyle={{fontWeight: 'bold', color: 'white'}}
-                highlightDateContainerStyle={{backgroundColor: 'black'}}
-                selectedDate={selectedDate}
-                onDateSelected={onDateSelected}
-                datesBlacklist={calendarDatesRemoved}
-                />
-                <Text style={{fontSize: 15, alignSelf: 'center'}}>Selected Date: {formattedDate ? formattedDate : 'Choose a date'}</Text>
-            </View>
-            <View style={{flex: 4}}>
-            { formattedDate && times &&
-                    <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
-                    {
-                    Object.entries(times).map((onekey, i) => (
-                        <ListItem key={i} bottomDivider onPress={() => scheduleAppointment(onekey[0])}>
-                            <ListItem.Content>
-                                <ListItem.Title>{onekey[1] ? null : onekey[0]}</ListItem.Title>
-                            </ListItem.Content>
-                        </ListItem>
-                        ))
-                    }  
-                    </ScrollView > 
-                }
-            { timePicked ?
-                    <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
-                        <Card.Title style={{ fontSize: 15 }}>{selectedDate} @ {selectedTime}</Card.Title>
-                        <Card.Divider />
-                        { Object.entries(barberInfo).map((onekey, i) => (
-                            <Text key={i}>{onekey[0]}: {onekey[1]}</Text>
-                            ))
-                        }
-                        <Text>Total time: ~30 minutes</Text>
-                        <TextInput
-                            // style={styles.input}
-                            onChangeText={onChangeText}
-                            value={text}
-                            placeholder="Comment"
-                        />
-                        <Button onPress={() => scheduleAppoint(formattedDate, selectedTime)} title='Confirm Appointment' />
-                    </Card> : 
-                    <View></View>
-                }
-            </View>
+            {loading ?
+          <><View style={{ flex: 1 }}>
+                    <CalendarStrip
+                        scrollable
+                        style={{ height: 100, paddingTop: 10, paddingBottom: 10 }}
+                        calendarHeaderStyle={{ color: 'white', fontSize: 17 }}
+                        calendarColor={'grey'}
+                        dateNumberStyle={{ color: 'white' }}
+                        dateNameStyle={{ color: 'white' }}
+                        iconContainer={{ flex: 0.1 }}
+                        highlightDateNameStyle={{ color: 'white' }}
+                        highlightDateNumberStyle={{ fontWeight: 'bold', color: 'white' }}
+                        highlightDateContainerStyle={{ backgroundColor: 'black' }}
+                        selectedDate={selectedDate}
+                        onDateSelected={onDateSelected}
+                        datesBlacklist={calendarDatesRemoved} />
+                    <Text style={{ fontSize: 15, alignSelf: 'center' }}>Selected Date: {formattedDate ? formattedDate : 'Choose a date'}</Text>
+                </View><View style={{ flex: 4 }}>
+                        {formattedDate && times &&
+                            <ScrollView style={{ borderColor: 'black', borderRadius: 15 }}>
+                                {Object.entries(times).map((onekey, i) => (
+                                    <ListItem key={i} bottomDivider onPress={() => scheduleAppointment(onekey[0])}>
+                                        <ListItem.Content>
+                                            <ListItem.Title>{onekey[1] ? null : onekey[0]}</ListItem.Title>
+                                        </ListItem.Content>
+                                    </ListItem>
+                                ))}
+                            </ScrollView>}
+                        {timePicked ?
+                            <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
+                                <Card.Title style={{ fontSize: 15 }}>{selectedDate} @{selectedTime}</Card.Title>
+                                <Card.Divider />
+                                {Object.entries(barberInfo).map((onekey, i) => (
+                                    <Text key={i}>{onekey[0]}: {onekey[1]}</Text>
+                                ))}
+                                <Text>Total time: ~30 minutes</Text>
+                                <TextInput
+                                    // style={styles.input}
+                                    onChangeText={onChangeText}
+                                    value={text}
+                                    placeholder="Comment" />
+                                <Button onPress={() => scheduleAppoint(formattedDate, selectedTime)} title='Confirm Appointment' />
+                            </Card> :
+                            <View></View>}
+                    </View></>
+                    : <Text>Loading</Text>
+            }
         </View>
     )
 }
