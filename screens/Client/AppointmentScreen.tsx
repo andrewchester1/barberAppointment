@@ -19,34 +19,40 @@ const AppointmentScreen = () => {
     const [timePicked, setTimePicked] = useState(false)
     const [selectedTime, setSelectedTime] = useState('')
     const [barberInfo, setBarberInfo] = useState({})
+    const [availibilityTime, setAvailibilityTime] = useState('')
+    const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
 
     const onDateSelected = selectedDate => {
         setSelectedDate(selectedDate.format('YYYY-MM-DD'));
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
         setIsLoading(true)
-        splitHours()
+        splitHours(selectedDate)
     }
 
-    const splitHours = async () => {
-        const weekDay = moment(selectedDate, "YYYY-MM-DD HH:mm:ss")
-        const newWeekDay = weekDay.format('dddd').toString()
-        console.log('newWeekDay', newWeekDay)
-        let availibility = {'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''}
-        await firestore().collection('Barber').doc('Nate').get().then((doc) => {
-            availibility = {...availibility, ...doc.data()}
-            const arr = availibility[newWeekDay]
-            console.log('arr', availibility[newWeekDay])
-        })
-        console.log('availibility', availibility)
-        createAvailableTimes(availibility, newWeekDay)
+    const splitHours = (selectedDate) => {
+        const weekDay = Promise.resolve(moment(selectedDate, "YYYY-MM-DD HH:mm:ss").format('dddd').toString())
+        
+        Promise.all([weekDay]).then(values => {
+            getWorkHours(availibility, values)
+            createAvailableTimes(availibility[`${values}`], selectedDate)
+          });
     }
+
+    function getWorkHours(availibility, weekDay) {
+        console.log('weekDay', weekDay)
+        console.log('newWeekDay', availibility[weekDay])
+    }
+    //createAvailableTimes(availibility[`${newWeekDay}`]),
 //.toString().toUpperCase().split("-").map(item => item.trim());
-    const createAvailableTimes = (availibility, newWeekDay) => {
-        var arr = availibility[newWeekDay]
-        console.log('arr', arr)
-        const startTime = moment(arr[0], 'HH:mm a')
-        const endTime = moment(arr[1], 'HH:mm a')
+    function createAvailableTimes(newWeekDay, selectedDate) {
+        let arr = newWeekDay
+        console.log('availibility[newWeekDay]', availibility[newWeekDay])
+        const newSplitString = arr.toUpperCase().split("-").map(item => item.trim());
+        console.log('NewSplitString', newSplitString)
+        const startTime = moment(newSplitString[0], 'HH:mm a')
+        const endTime = moment(newSplitString[1], 'HH:mm a')
         console.log('startTime', startTime)
+        console.log('endTime', endTime)
         let newIntervals = {}
         while (startTime <= endTime) {
             let newobj = {[moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '')] : '' }
@@ -54,26 +60,26 @@ const AppointmentScreen = () => {
             startTime.add(30, 'minutes')
         }
         setIntervals({...newIntervals })
-        console.log('newIntervals', intervals)
-        onGetData()
+        console.log('newIntervals', newIntervals)
+        onGetData(selectedDate, newIntervals)
     }
 
-    const onGetData = async () => {
+    const onGetData = async (selectedDate, newIntervals) => {
         await firestore()
         .collection('Calendar')
-        .doc(moment(formattedDate).format('MMM YY'))
-        .collection(moment(formattedDate).format('YYYY-MM-DD')).get()
+        .doc(moment(selectedDate).format('MMM YY'))
+        .collection(moment(selectedDate).format('YYYY-MM-DD')).get()
         .then(snapshot => {
             let data = {}
             snapshot.forEach(doc => {
                 let newdata = {[doc.id] : 'Taken'}
                 data = { ...data, ...newdata}
+                console.log('data1', newdata)
             });
-            setTimes({ ...intervals, ...data})
-            console.log('data', times)
+            setTimes({ ...newIntervals, ...data})
         })
     }
-
+    console.log('data2', times)
     const removeMonSun = () => {
         let dateArray = []
         let currentDate = moment()
@@ -107,22 +113,20 @@ const AppointmentScreen = () => {
 
     const [userName, setUserName] = useState('')
     const [userPhone, setUserPhone] = useState('')
-    const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
     const [loading, setLoading] = useState(Boolean);
 
-    const getUserId = async () => {
-    const userData = auth().currentUser;
-        await firestore().collection("Test").doc(userData.uid).onSnapshot(doc => {
-            setUserName(doc.data().name );
-            setUserPhone( doc.data().phone) 
-            console.log('setUserName', setUserName)
-        })
+    async function getUserId() {
+        const userData = auth().currentUser;
+            await firestore().collection("Test").doc(userData.uid).get().then((doc) => {
+                const userNameData = doc.data().name
+                const userPhoneData = doc.data().phone
+                console.log('doc.data()', doc.data().name)
+                setUserName(userNameData ), setUserPhone( userPhoneData) 
+            })
         
             await firestore().collection('Barber').doc('Nate').get().then((doc) => {
-            const databaseAvailibility = {...doc.data()}
-            console.log('databaseAvailibility', availibility)
-            //const arr = availibility[newWeekDay]
-            return setLoading(false), setAvailibility({...availibility, ...databaseAvailibility})
+            const databaseAvailibility = {...availibility, ...doc.data()}
+            setAvailibility({ ...availibility, ...databaseAvailibility})
         })
     }
 
@@ -172,15 +176,17 @@ const AppointmentScreen = () => {
     useEffect(() => {
         removeMonSun()
         getUserId()
-        setLoading(true)
-        console.log('arr', availibility)
     }, [])
 
+    console.log('arr', availibility)
+    console.log('setUserName', userName)
+    console.log('setUserPhone', userPhone)
+    console.log('newWeekDay1', availibilityTime)
     const [text, onChangeText] = useState('')
 
     return(
         <View style={styles.container}>
-            {loading ?
+            
           <><View style={{ flex: 1 }}>
                     <CalendarStrip
                         scrollable
@@ -225,8 +231,7 @@ const AppointmentScreen = () => {
                             </Card> :
                             <View></View>}
                     </View></>
-                    : <Text>Loading</Text>
-            }
+                 
         </View>
     )
 }
