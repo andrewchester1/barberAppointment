@@ -57,7 +57,12 @@ const HomeScreen = () => {
                         </ListItem>
                     </>
                 :
-                    <Text>No Upcoming Appointments Scheduled</Text>
+                <ListItem bottomDivider >
+                    <ListItem.Content>
+                        <ListItem.Title style={{ fontWeight: 'bold' }}><Text>Upcoming Appointments</Text></ListItem.Title>
+                        <Text>No Upcoming Appointments</Text>
+                    </ListItem.Content>
+                </ListItem>
                 }
                 
                 { userTestData.previous != '' ?
@@ -68,7 +73,12 @@ const HomeScreen = () => {
                         </ListItem.Content>
                     </ListItem>
                     :
-                    <Text>No Previous Appointments</Text>
+                    <ListItem bottomDivider >
+                        <ListItem.Content>
+                            <ListItem.Title style={{ fontWeight: 'bold' }}>Previous Appointment</ListItem.Title>
+                            <Text>No Previous Appointments</Text>
+                        </ListItem.Content>
+                    </ListItem>
                 }
             </View>
         </View>
