@@ -68,10 +68,14 @@ const AppointmentScreen = () => {
                 selectedDate={selectedDate}
                 onDateSelected={onDateSelected}
                 />
-                <Text style={{fontSize: 15, alignSelf: 'center'}}>Selected Date: {formattedDate ? formattedDate : 'Choose a date'}</Text>
                 
             </View>
-            <View style={{flex: 4}}>
+            <View style={{flex: 5}}>
+                <ListItem bottomDivider>
+                    <ListItem.Content style={{ alignItems: 'center', marginTop: -5}}>
+                        <ListItem.Title> {formattedDate ? formattedDate : 'Choose a date'} </ListItem.Title>
+                    </ListItem.Content>
+                </ListItem>
                 {!isLoading && calendarData ?
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                         {
@@ -87,8 +91,8 @@ const AppointmentScreen = () => {
                                 <ListItem.Content>
                                     <ListItem.Title>{anObjectMapped.time} </ListItem.Title>
                                     <ListItem.Subtitle>Client: {anObjectMapped.name}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Comments: {anObjectMapped.comment}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Comments: {anObjectMapped.phone}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Phone: {anObjectMapped.phone}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Comment: {anObjectMapped.comment}</ListItem.Subtitle>
                                 </ListItem.Content>
                             </ListItem>
                             ))

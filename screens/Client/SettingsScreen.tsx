@@ -5,6 +5,7 @@ import FirebaseUtil from "../../utils/FirebaseUtil";
 import FirestoreUserNameUtil from "../../utils/FireStoreUserNameUtil";
 import auth from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
+import { formatPhoneNumber } from "../../utils/DataFormatting";
 
 const SettingsScreen = () => {
     const [userInfo, setUserInfo] = useState({});
@@ -27,7 +28,7 @@ const SettingsScreen = () => {
             [`${userDataType}`] : newUserInfo
         }
         const userData = auth().currentUser;
-        const test = firestore().collection('Test').doc(userData.uid).update(updateUserData);
+        firestore().collection('Test').doc(userData.uid).update(updateUserData);
     }
 
     function getUserData() {
@@ -35,7 +36,7 @@ const SettingsScreen = () => {
             const userInfo = {
                 Name: userData.data().name,
                 Email: userData.data().email,
-                Phone: userData.data().phone,
+                Phone: formatPhoneNumber(userData.data().phone),
             };
             setUserInfo(userInfo)
         });
@@ -59,8 +60,8 @@ const SettingsScreen = () => {
                         onChangeText={setNewUserInfo}
                         value={newUserInfo}
                         style={styles.textInput} />
-                        <Button title="Change Information" onPress={() => setUserData(newUserInfo)}/>
-                    </>
+                        <Button title={`Change ${userDataType.charAt(0).toUpperCase() + userDataType.slice(1)}`} onPress={() => setUserData(newUserInfo)}/>
+                    </>{console.log('userDataType', userDataType)}
                 </View>
             }
             { Object.entries(userInfo).map((onekey, i) => (

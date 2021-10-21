@@ -34,16 +34,16 @@ function MainStackNavigator() {
         <Tab.Navigator>
             { admin == undefined || admin == false ?
                 <>
-                    <Tab.Screen name='Home' component={HomeScreen} />
-                    <Tab.Screen name='Appointment' component={AppointmentScreen} />
-                    <Tab.Screen name='About' component={AboutScreen} />
-                    <Tab.Screen name='Settings' component={SettingsScreen} />
+                    <Tab.Screen name='Home' options={{ title: 'Home', headerTitleAlign: 'center' }} component={HomeScreen}  />
+                    <Tab.Screen name='Appointment' options={{ title: 'Appointment', headerTitleAlign: 'center' }} component={AppointmentScreen} />
+                    <Tab.Screen name='About' options={{ title: 'Nate', headerTitleAlign: 'center' }} component={AboutScreen} />
+                    <Tab.Screen name='Settings' options={{ title: 'Settings', headerTitleAlign: 'center' }} component={SettingsScreen} />
                 </> :
                 <>
-                    <Tab.Screen name='About' component={AboutScreen} />
-                    <Tab.Screen name='Add Appointments' component={AdminAddAppointmentScreen} />
-                    <Tab.Screen name='Calendar' component={AdminCalendarScreen} />
-                    <Tab.Screen name='Admin' component={AdminScreen} />
+                    <Tab.Screen name='About' options={{ title: 'Nate', headerTitleAlign: 'center' }} component={AboutScreen} />
+                    <Tab.Screen name='Add Appointments' options={{ title: 'Add Appointments', headerTitleAlign: 'center' }} component={AdminAddAppointmentScreen} />
+                    <Tab.Screen name='Calendar' options={{ title: 'Calendar', headerTitleAlign: 'center' }} component={AdminCalendarScreen} />
+                    <Tab.Screen name='Admin' options={{ title: 'Admin', headerTitleAlign: 'center' }} component={AdminScreen} />
                 </>
             } 
         </Tab.Navigator>

@@ -4,28 +4,55 @@ import { View, StyleSheet, Text, ScrollView, TextInput, Button, ActivityIndicato
 import AppointmentTimes from '../../components/AppointmentTimes';
 import CalendarStrip from 'react-native-calendar-strip';
 import { color } from 'react-native-elements/dist/helpers';
-import { Card, ListItem } from 'react-native-elements';
+import { Card, CheckBox, ListItem } from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore'
 import FirestoreBarberInfoUtil from '../../utils/FirestoreBarberInfoUtil';
 import auth from '@react-native-firebase/auth'
 
 const AppointmentScreen = () => {
-    const [isLoading, setIsLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [formattedDate, setFormattedDate] = useState();
     const [calendarDatesRemoved, setCalendarDatesRemoved] = useState([])
-    const [intervals, setIntervals ] = useState({}) 
     const [times, setTimes] = useState({})
     const [timePicked, setTimePicked] = useState(false)
     const [selectedTime, setSelectedTime] = useState('')
     const [barberInfo, setBarberInfo] = useState({})
-    const [availibilityTime, setAvailibilityTime] = useState('')
     const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
+    const [userName, setUserName] = useState('')
+    const [userPhone, setUserPhone] = useState('')
+    const [text, onChangeText] = useState('')
+    const [previousAppointment, setPreviousAppointment] = useState('')
+
+    async function getUserId() {
+        const userData = auth().currentUser;
+            await firestore().collection("Test").doc(userData.uid).get().then((doc) => {
+                const userNameData = doc.data().name
+                const userPhoneData = doc.data().phone
+                setUserName(userNameData ), setUserPhone( userPhoneData) 
+            })
+        
+            await firestore().collection('Barber').doc('Nate').get().then((doc) => {
+            const databaseAvailibility = {...availibility, ...doc.data()}
+            setAvailibility({ ...availibility, ...databaseAvailibility})
+        })
+    }
+
+    const removeMonSun = () => {
+        let dateArray = []
+        let currentDate = moment()
+        const stopDate = moment().add(30, 'days');
+        while (currentDate <= stopDate) {
+            if(moment(currentDate).format('dddd') == 'Sunday' || moment(currentDate).format('dddd') == 'Monday' ) {
+                dateArray.push( moment(currentDate).format('YYYY-MM-DD'))
+            }
+            currentDate = moment(currentDate).add(1, 'days');
+        }
+        setCalendarDatesRemoved( dateArray)
+    }
 
     const onDateSelected = selectedDate => {
         setSelectedDate(selectedDate.format('YYYY-MM-DD'));
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
-        setIsLoading(true)
         splitHours(selectedDate)
     }
 
@@ -33,34 +60,21 @@ const AppointmentScreen = () => {
         const weekDay = Promise.resolve(moment(selectedDate, "YYYY-MM-DD HH:mm:ss").format('dddd').toString())
         
         Promise.all([weekDay]).then(values => {
-            getWorkHours(availibility, values)
             createAvailableTimes(availibility[`${values}`], selectedDate)
           });
     }
 
-    function getWorkHours(availibility, weekDay) {
-        console.log('weekDay', weekDay)
-        console.log('newWeekDay', availibility[weekDay])
-    }
-    //createAvailableTimes(availibility[`${newWeekDay}`]),
-//.toString().toUpperCase().split("-").map(item => item.trim());
     function createAvailableTimes(newWeekDay, selectedDate) {
         let arr = newWeekDay
-        console.log('availibility[newWeekDay]', availibility[newWeekDay])
         const newSplitString = arr.toUpperCase().split("-").map(item => item.trim());
-        console.log('NewSplitString', newSplitString)
         const startTime = moment(newSplitString[0], 'HH:mm a')
         const endTime = moment(newSplitString[1], 'HH:mm a')
-        console.log('startTime', startTime)
-        console.log('endTime', endTime)
         let newIntervals = {}
         while (startTime <= endTime) {
             let newobj = {[moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '')] : '' }
             newIntervals = {...newIntervals, ...newobj}
             startTime.add(30, 'minutes')
         }
-        setIntervals({...newIntervals })
-        console.log('newIntervals', newIntervals)
         onGetData(selectedDate, newIntervals)
     }
 
@@ -74,24 +88,9 @@ const AppointmentScreen = () => {
             snapshot.forEach(doc => {
                 let newdata = {[doc.id] : 'Taken'}
                 data = { ...data, ...newdata}
-                console.log('data1', newdata)
             });
             setTimes({ ...newIntervals, ...data})
         })
-    }
-    console.log('data2', times)
-    const removeMonSun = () => {
-        let dateArray = []
-        let currentDate = moment()
-        const stopDate = moment().add(30, 'days');
-        while (currentDate <= stopDate) {
-            if(moment(currentDate).format('dddd') == 'Sunday' || moment(currentDate).format('dddd') == 'Monday' ) {
-                dateArray.push( moment(currentDate).format('YYYY-MM-DD'))
-            }
-            currentDate = moment(currentDate).add(1, 'days');
-        }
-        setCalendarDatesRemoved( dateArray)
-        console.log('calendarDatesRemoved', calendarDatesRemoved)
     }
 
     const scheduleAppointment = (time) => {
@@ -106,37 +105,17 @@ const AppointmentScreen = () => {
                 Address: testData.data().location
             };
             setBarberInfo({ ...barberInfo, ...barberData})
-            console.log('barberData', barberInfo)
             setSelectedTime(time)
         });
     };
 
-    const [userName, setUserName] = useState('')
-    const [userPhone, setUserPhone] = useState('')
-    const [loading, setLoading] = useState(Boolean);
-
-    async function getUserId() {
-        const userData = auth().currentUser;
-            await firestore().collection("Test").doc(userData.uid).get().then((doc) => {
-                const userNameData = doc.data().name
-                const userPhoneData = doc.data().phone
-                console.log('doc.data()', doc.data().name)
-                setUserName(userNameData ), setUserPhone( userPhoneData) 
-            })
-        
-            await firestore().collection('Barber').doc('Nate').get().then((doc) => {
-            const databaseAvailibility = {...availibility, ...doc.data()}
-            setAvailibility({ ...availibility, ...databaseAvailibility})
-        })
-    }
-
     const scheduleAppoint = async (selectedDate, selectedTime) => {
-    const userAppointmentInfo = {
-        name: userName,
-        comment: text,
-        time : selectedTime,
-        phone : userPhone
-    };
+        const userAppointmentInfo = {
+            name: userName,
+            comment: text,
+            time : selectedTime,
+            phone : userPhone
+        };
 
         await firestore()
         .collection('Calendar')
@@ -152,8 +131,6 @@ const AppointmentScreen = () => {
             alert('Something went wrong try again')
         }); 
     }
-
-    const [previousAppointment, setPreviousAppointment] = useState('')
 
     const addAppointmentToUser = async (selectedDate, selectedTime) => {
         const userData = auth().currentUser;
@@ -178,12 +155,6 @@ const AppointmentScreen = () => {
         getUserId()
     }, [])
 
-    console.log('arr', availibility)
-    console.log('setUserName', userName)
-    console.log('setUserPhone', userPhone)
-    console.log('newWeekDay1', availibilityTime)
-    const [text, onChangeText] = useState('')
-
     return(
         <View style={styles.container}>
             
@@ -199,12 +170,15 @@ const AppointmentScreen = () => {
                         highlightDateNameStyle={{ color: 'white' }}
                         highlightDateNumberStyle={{ fontWeight: 'bold', color: 'white' }}
                         highlightDateContainerStyle={{ backgroundColor: 'black' }}
+                        startingDate={moment()}
+                        minDate={moment()}
+                        maxDate={moment().add(30, 'days')}
                         selectedDate={selectedDate}
                         onDateSelected={onDateSelected}
                         datesBlacklist={calendarDatesRemoved} />
                     <Text style={{ fontSize: 15, alignSelf: 'center' }}>Selected Date: {formattedDate ? formattedDate : 'Choose a date'}</Text>
                 </View><View style={{ flex: 4 }}>
-                        {formattedDate && times &&
+                        {formattedDate && times && !timePicked ?
                             <ScrollView style={{ borderColor: 'black', borderRadius: 15 }}>
                                 {Object.entries(times).map((onekey, i) => (
                                     <ListItem key={i} bottomDivider onPress={() => scheduleAppointment(onekey[0])}>
@@ -213,8 +187,8 @@ const AppointmentScreen = () => {
                                         </ListItem.Content>
                                     </ListItem>
                                 ))}
-                            </ScrollView>}
-                        {timePicked ?
+                            </ScrollView> :
+                        timePicked ?
                             <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
                                 <Card.Title style={{ fontSize: 15 }}>{selectedDate} @{selectedTime}</Card.Title>
                                 <Card.Divider />
