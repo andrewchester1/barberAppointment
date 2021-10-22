@@ -1,53 +1,138 @@
 import React, { useState } from 'react'
 import { StyleSheet, View, TextInput, Button, Text } from 'react-native'
 import FirebaseUtil from '../../utils/FirebaseUtil';
+import {useForm, Controller} from 'react-hook-form'
 
 const LoginScreen = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [phone, setPhone] = useState('');
-    const [name, setName] = useState('');
-    const [referral, setReferral] = useState('')
 
-    const signUp = () => {FirebaseUtil.signUp(email, password, phone, name, referral).catch((e) => {
+    const {
+        control, 
+        handleSubmit, 
+        formState: {errors, isValid}
+      } = useForm({mode: 'onBlur'})
+
+      const onSubmit = data => console.log(data)
+
+    const signUp = data => {FirebaseUtil.signUp(data.email, data.password, data.phone, data.name, data.referral).catch((e) => {
         console.log(e)
         alert('Something went wrong')
     })};
     return(
         <View style={styles.container}>
-            <TextInput 
-                placeholder="Name"
-                onChangeText={setName}
-                value={name}
+            {errors.name && <Text>Name is Required</Text>}
+            <Controller
+                control={control}
+                rules={{
+                required: true,
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
                 style={styles.textInput}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Full Name"
             />
-            <TextInput 
+            )}
+                name="name"
+                defaultValue=""
+            />
+
+            {errors.email && <Text>Email is Required</Text>}
+            <Controller
+                control={control}
+                rules={{
+                required: true,
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={styles.textInput}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
                 placeholder="Email"
-                onChangeText={setEmail}
-                value={email}
-                style={styles.textInput} 
             />
-            <TextInput 
-                placeholder="Phone"
-                onChangeText={setPhone}
-                value={phone}
-                style={styles.textInput} 
+            )}
+                name="email"
+                defaultValue=""
             />
-            <TextInput 
-                placeholder="Password"
-                onChangeText={setPassword}
-                value={password}
-                style={styles.textInput} 
-                secureTextEntry={true} 
-            />
-            <Text>If someone referred you, enter their name</Text>
-            <TextInput 
-                placeholder="Referral"
-                onChangeText={setReferral}
-                value={referral}
+
+            {errors.phone && <Text>Phone Number is Required</Text>}
+            <Controller
+                control={control}
+                rules={{
+                required: true,
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
                 style={styles.textInput}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Phone Number"
             />
-            <Button title='Sign Up' onPress={() => signUp()} />
+            )}
+                name="phone"
+                defaultValue=""
+            />
+
+            {errors.password && <Text>Password is Required</Text>}
+            {errors.confirmPassword && <Text>Passwords do not match</Text>}
+            <Controller
+                control={control}
+                rules={{
+                required: true,
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={styles.textInput}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Password"
+                secureTextEntry={true}
+            />
+            )}
+                name="password"
+                defaultValue=""
+            />
+
+            {errors.confirmPassword && <Text>Passwords do not match</Text>}
+            <Controller
+                control={control}
+                rules={{
+                required: true,
+                validate: value => value === value.password
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={styles.textInput}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Confirm Password"
+                secureTextEntry={true}
+            />
+            )}
+                name="confirmPassword"
+                defaultValue=""
+            />
+
+            <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={styles.textInput}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Referral Optional"
+            />
+            )}
+                name="referral"
+                defaultValue=""
+            />
+            <Button title='Sign Up' onPress={handleSubmit(signUp)}/>
         </View>
     )
 }

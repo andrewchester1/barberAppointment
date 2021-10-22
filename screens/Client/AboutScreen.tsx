@@ -23,7 +23,7 @@ const HomeScreen = () => {
                     <Text>Licensed Barber/Goat Studio</Text>
             </Card>
             <ScrollView>
-                <Card containerStyle={{ flex: 2.5, borderRadius: 5}}>
+                <Card containerStyle={{ flex: 2.5, borderRadius: 5, backgroundColor: '#393E46'}}>
                     <Card.Title style={{ fontSize: 15, textAlign:'left'}}> INFO </Card.Title>
                         <Text> {barberData.price} </Text>
                         <Text> {barberData.phone != '' ? formatPhoneNumber(barberData.phone) : ''} </Text>
@@ -50,7 +50,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+      backgroundColor: '#393E46',
     }
   });
 

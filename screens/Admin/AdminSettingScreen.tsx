@@ -46,9 +46,9 @@ const AdminScreen = ({navigation}) => {
 
     return(
         <View style={styles.container}>
-            <ListItem bottomDivider>
-                <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center' }}>My Account Detials</ListItem.Title>
+            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider>
+                <ListItem.Content >
+                    <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center', color: 'white' }}>My Account Details</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
             { changeUserInfo &&
@@ -63,25 +63,25 @@ const AdminScreen = ({navigation}) => {
                 </View>
             }
             { Object.entries(userInfo).map((onekey, settingsInfo) => (
-                <ListItem bottomDivider onPress={() => changeInfo(onekey)} >
+                <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider onPress={() => changeInfo(onekey)} >
                     <ListItem.Content>
-                        <ListItem.Title key={settingsInfo}> {onekey[0]}: {onekey[1]} </ListItem.Title>
+                        <ListItem.Title style={{ color: 'white' }} key={settingsInfo}> {onekey[0]}: {onekey[1]} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
             ))}
-            <ListItem bottomDivider onPress={() => navigation.navigate('EditAccountScreen')}>
+            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider onPress={() => navigation.navigate('EditAccountScreen')}>
                 <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold' }}>View Clients</ListItem.Title>
+                    <ListItem.Title style={{ color: 'white' }}>View Clients</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
-            <ListItem bottomDivider>
+            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider>
                 <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold' }}>Change Password</ListItem.Title>
+                    <ListItem.Title style={{ color: 'white' }}>Change Password</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
-            <ListItem bottomDivider onPress={() => signOut()}>
+            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider onPress={() => signOut()}>
                 <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center' }}>Sign Out</ListItem.Title>
+                    <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center', color: 'white' }}>Sign Out</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
         </View>
@@ -90,9 +90,8 @@ const AdminScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
     container: {
-      alignContent: 'flex-start',
-      backgroundColor: '#fff',
-      justifyContent: 'center',
+        flex: 1,
+        backgroundColor: 'black',
     },
     textInput: {
         borderWidth: 1,
@@ -101,6 +100,9 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         borderRadius: 5,
     },
+    containerStyle: {
+        backgroundColor: 'grey'
+    }
   });
 
 export default AdminScreen

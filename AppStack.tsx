@@ -9,6 +9,7 @@ import AppointmentScreen from "./screens/Client/AppointmentScreen";
 import AboutScreen from "./screens/Client/AboutScreen";
 import SettingsScreen from "./screens/Client/SettingsScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FirestoreUserNameUtil from "./utils/FireStoreUserNameUtil";
 import AdminScreen from "./screens/Admin/AdminSettingScreen";
@@ -47,7 +48,7 @@ const AdminSettingsStack = createNativeStackNavigator();
 function AdminSettingsStackScreen() {
     return (
         <AdminSettingsStack.Navigator>
-            <AdminSettingsStack.Screen name="Admin Settings" options={{ title: 'Admin Settings', headerTitleAlign: 'center' }} component={AdminScreen}/>
+            <AdminSettingsStack.Screen name="Admin Settings" options={{ headerStyle:{backgroundColor: 'grey'}, headerTintColor: 'white', title: 'Admin Settings', headerTitleAlign: 'center' }} component={AdminScreen}/>
             <AdminSettingsStack.Screen name="EditAccountScreen" options={{ title: 'Edit Accounts', headerTitleAlign: 'center' }} component={EditAccountScreen} />
             <AdminSettingsStack.Screen name="Points" options={{ title: 'Points', headerTitleAlign: 'center' }} component={AdminAddPoints} />
         </AdminSettingsStack.Navigator>
@@ -58,13 +59,18 @@ const AdminAboutStack = createNativeStackNavigator();
 
 function AdminAdminStackScreen({ navigation }) {
     return (
-        <AdminAboutStack.Navigator>
-            <AdminAboutStack.Screen name="Nate" options={{ title: 'Nate', headerTitleAlign: 'center',
+        <AdminAboutStack.Navigator
+        screenOptions={{
+            headerStyle:{backgroundColor: '#222831'},
+            headerTintColor: 'white',
+            headerTitleAlign: 'center'
+        }}>
+            <AdminAboutStack.Screen name="Nate" options={{ title: 'Nate',
                 headerRight: () => (
                     <Button
                     onPress={() => navigation.navigate('Edit Profile')}
                     title="Edit"
-                    color="black"
+                    color="#222831"
                     />
                 ),}} component={AboutScreen}/>
             <AdminAboutStack.Screen name="Edit Profile" options={{ title: 'Edit Profile', headerTitleAlign: 'center' }} component={AdminEditProfileScreen}/>
@@ -81,7 +87,7 @@ function LoginStackScreen({ navigation }) {
                 headerRight: () => (
                     <Button
                     onPress={() => navigation.navigate('Sign Up')}
-                    title="Edit"
+                    title="Sign Up"
                     color="black"
                     />
                 ),}} component={LoginScreen}/>
@@ -102,10 +108,22 @@ function MainStackNavigator() {
 
 function MainAdminStackNavigator() {
     return (
-        <Tab.Navigator>
-                <Tab.Screen name='About' options={{ headerShown: false}} component={AdminAdminStackScreen} />
-                <Tab.Screen name='Calendar' options={{ headerShown: false }} component={AdminCalendarStackScreen} />
-                <Tab.Screen name='Admin' options={{ headerShown: false}} component={AdminSettingsStackScreen} />
+        <Tab.Navigator 
+        screenOptions={{
+            tabBarStyle: {
+            backgroundColor: '#222831',
+            //backgroundColor: 'transparent',
+            position:'absolute',
+            bottom:0,
+            elevation:0
+            },
+            headerShown: false,
+            tabBarActiveTintColor: 'white',
+            tabBarInactiveTintColor: 'white'
+        }}>
+                <Tab.Screen name='About' component={AdminAdminStackScreen} />
+                <Tab.Screen name='Calendar' component={AdminCalendarStackScreen} />
+                <Tab.Screen name='Admin' component={AdminSettingsStackScreen} />
         </Tab.Navigator>
     )
 }
