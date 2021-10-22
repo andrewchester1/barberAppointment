@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, ScrollView, TextInput, Button, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TextInput, Button, ActivityIndicator, Alert } from 'react-native';
 import AppointmentTimes from '../../components/AppointmentTimes';
 import CalendarStrip from 'react-native-calendar-strip';
 import { color } from 'react-native-elements/dist/helpers';
@@ -22,6 +22,13 @@ const AppointmentScreen = () => {
     const [userPhone, setUserPhone] = useState('')
     const [text, onChangeText] = useState('')
     const [previousAppointment, setPreviousAppointment] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+
+    const clearState = () => {
+        setSelectedDate(moment())
+        setFormattedDate(undefined)
+        setIsLoading(false)
+    }
 
     async function getUserId() {
         const userData = auth().currentUser;
@@ -51,6 +58,8 @@ const AppointmentScreen = () => {
     }
 
     const onDateSelected = selectedDate => {
+        setIsLoading(true)
+        setTimePicked(false)
         setSelectedDate(selectedDate.format('YYYY-MM-DD'));
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
         splitHours(selectedDate)
@@ -90,6 +99,7 @@ const AppointmentScreen = () => {
                 data = { ...data, ...newdata}
             });
             setTimes({ ...newIntervals, ...data})
+            setIsLoading(false)
         })
     }
 
@@ -109,7 +119,16 @@ const AppointmentScreen = () => {
         });
     };
 
-    const scheduleAppoint = async (selectedDate, selectedTime) => {
+    const addAppointmentToUser = async (selectedDate, selectedTime) => {
+        const userData = auth().currentUser;
+        await firestore().collection('Test').doc(userData.uid).get().then((data) => {
+            const oldAppointmentData = data.data().upcoming
+            setPreviousAppointment(oldAppointmentData)
+            scheduleAppoint(userData, selectedDate, selectedTime)
+        })
+    }
+
+    const scheduleAppoint = async (userData, selectedDate, selectedTime) => {
         const userAppointmentInfo = {
             name: userName,
             comment: text,
@@ -123,22 +142,19 @@ const AppointmentScreen = () => {
         .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(selectedTime)
         .set(userAppointmentInfo, {merge: true})
         .then(() => {
-            addAppointmentToUser(selectedDate, selectedTime)
             console.log('It worked!!!!!')
-            alert(`Thanks ${userName}, your appointment has been scheduled`)
+            addAppointmentDataBase(userData, selectedDate, selectedTime)
+            Alert.alert('Appointment Scheduled',`Thanks ${userName}, your appointment has been scheduled`,
+            [
+                {
+                  text: "Okay",
+                  onPress: () => ''
+                }
+              ])
         }).catch((error) => {
             console.log('Error updating the document: ', error)
             alert('Something went wrong try again')
         }); 
-    }
-
-    const addAppointmentToUser = async (selectedDate, selectedTime) => {
-        const userData = auth().currentUser;
-        await firestore().collection('Test').doc(userData.uid).get().then((data) => {
-            const oldAppointmentData = data.data().upcoming
-            setPreviousAppointment(oldAppointmentData)
-        })
-        addAppointmentDataBase(userData, selectedDate, selectedTime)
     }
 
     const addAppointmentDataBase = async (userData, selectedDate, selectedTime) => {
@@ -157,55 +173,60 @@ const AppointmentScreen = () => {
 
     return(
         <View style={styles.container}>
-            
-          <><View style={{ flex: 1 }}>
-                    <CalendarStrip
-                        scrollable
-                        style={{ height: 100, paddingTop: 10, paddingBottom: 10 }}
-                        calendarHeaderStyle={{ color: 'white', fontSize: 17 }}
-                        calendarColor={'grey'}
-                        dateNumberStyle={{ color: 'white' }}
-                        dateNameStyle={{ color: 'white' }}
-                        iconContainer={{ flex: 0.1 }}
-                        highlightDateNameStyle={{ color: 'white' }}
-                        highlightDateNumberStyle={{ fontWeight: 'bold', color: 'white' }}
-                        highlightDateContainerStyle={{ backgroundColor: 'black' }}
-                        startingDate={moment()}
-                        minDate={moment()}
-                        maxDate={moment().add(30, 'days')}
-                        selectedDate={selectedDate}
-                        onDateSelected={onDateSelected}
-                        datesBlacklist={calendarDatesRemoved} />
-                    <Text style={{ fontSize: 15, alignSelf: 'center' }}>Selected Date: {formattedDate ? formattedDate : 'Choose a date'}</Text>
-                </View><View style={{ flex: 4 }}>
-                        {formattedDate && times && !timePicked ?
-                            <ScrollView style={{ borderColor: 'black', borderRadius: 15 }}>
-                                {Object.entries(times).map((onekey, i) => (
-                                    <ListItem key={i} bottomDivider onPress={() => scheduleAppointment(onekey[0])}>
-                                        <ListItem.Content>
-                                            <ListItem.Title>{onekey[1] ? null : onekey[0]}</ListItem.Title>
-                                        </ListItem.Content>
-                                    </ListItem>
-                                ))}
-                            </ScrollView> :
-                        timePicked ?
-                            <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
-                                <Card.Title style={{ fontSize: 15 }}>{selectedDate} @{selectedTime}</Card.Title>
-                                <Card.Divider />
-                                {Object.entries(barberInfo).map((onekey, i) => (
-                                    <Text key={i}>{onekey[0]}: {onekey[1]}</Text>
-                                ))}
-                                <Text>Total time: ~30 minutes</Text>
-                                <TextInput
-                                    // style={styles.input}
-                                    onChangeText={onChangeText}
-                                    value={text}
-                                    placeholder="Comment" />
-                                <Button onPress={() => scheduleAppoint(formattedDate, selectedTime)} title='Confirm Appointment' />
-                            </Card> :
-                            <View></View>}
-                    </View></>
-                 
+          <View style={{ flex: 1 }}>
+                <CalendarStrip
+                    scrollable
+                    style={{ height: 100, paddingTop: 10, paddingBottom: 10 }}
+                    calendarHeaderStyle={{ color: 'white', fontSize: 17 }}
+                    calendarColor={'grey'}
+                    dateNumberStyle={{ color: 'white' }}
+                    dateNameStyle={{ color: 'white' }}
+                    iconContainer={{ flex: 0.1 }}
+                    highlightDateNameStyle={{ color: 'white' }}
+                    highlightDateNumberStyle={{ fontWeight: 'bold', color: 'white' }}
+                    highlightDateContainerStyle={{ backgroundColor: 'black' }}
+                    startingDate={moment()}
+                    minDate={moment()}
+                    maxDate={moment().add(30, 'days')}
+                    selectedDate={selectedDate}
+                    onDateSelected={onDateSelected}
+                    datesBlacklist={calendarDatesRemoved} />
+            </View>
+            <View style={{ flex: 5 }}>
+                <ListItem bottomDivider>
+                    <ListItem.Content style={{ alignItems: 'center', marginTop: -5}}>
+                        <ListItem.Title> {formattedDate ? formattedDate : 'Choose a date'} </ListItem.Title>
+                    </ListItem.Content>
+                </ListItem>
+                {!isLoading && times && !timePicked ?
+                    <ScrollView style={{ borderColor: 'black', borderRadius: 15 }}>
+                        {Object.entries(times).map((onekey, i) => (
+                            <ListItem key={i} bottomDivider onPress={() => scheduleAppointment(onekey[0])}>
+                                <ListItem.Content>
+                                    <ListItem.Title>{onekey[1] ? null : onekey[0]}</ListItem.Title>
+                                </ListItem.Content>
+                            </ListItem>
+                        ))}
+                    </ScrollView> 
+                    : isLoading ?
+                    <ActivityIndicator color='#000' size='large'/>
+                    : timePicked &&
+                    <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
+                        <Card.Title style={{ fontSize: 15 }}>{selectedDate} @{selectedTime}</Card.Title>
+                        <Card.Divider />
+                        {Object.entries(barberInfo).map((onekey, i) => (
+                            <Text key={i}>{onekey[0]}: {onekey[1]}</Text>
+                        ))}
+                        <Text>Total time: ~30 minutes</Text>
+                        <TextInput
+                            // style={styles.input}
+                            onChangeText={onChangeText}
+                            value={text}
+                            placeholder="Comment" />
+                        <Button onPress={() => addAppointmentToUser(formattedDate, selectedTime)} title='Confirm Appointment' />
+                    </Card> 
+                }
+            </View>   
         </View>
     )
 }

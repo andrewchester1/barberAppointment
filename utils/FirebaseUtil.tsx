@@ -8,7 +8,7 @@ export default class FirebaseUtil {
     public static signOut = () => {
         return auth().signOut();
     }
-    public static signUp = (email: string, password: string, phone: string, name: string) => {
+    public static signUp = (email: string, password: string, phone: string, name: string, referral: string) => {
         return auth().createUserWithEmailAndPassword(email, password).then(data => {  
             const user = {
                 email: email,
@@ -16,6 +16,8 @@ export default class FirebaseUtil {
                 user_id: data.user.uid,
                 phone: phone,
                 name: name,
+                referral: referral,
+                points: '0'
             };
             firestore().collection('Test').doc(data.user.uid).set(user);
          })

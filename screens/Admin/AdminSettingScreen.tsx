@@ -34,7 +34,6 @@ const AdminScreen = ({navigation}) => {
         FirestoreUserNameUtil.getUserName().then((userData) => {
             const userInfo = {
                 Name: userData.data().name,
-                Email: userData.data().email,
                 Phone: userData.data().phone,
             };
             setUserInfo(userInfo)
@@ -63,21 +62,16 @@ const AdminScreen = ({navigation}) => {
                     </>
                 </View>
             }
-            { Object.entries(userInfo).map((onekey, i) => (
+            { Object.entries(userInfo).map((onekey, settingsInfo) => (
                 <ListItem bottomDivider onPress={() => changeInfo(onekey)} >
                     <ListItem.Content>
-                        <ListItem.Title key={i}> {onekey[0]}: {onekey[1]} </ListItem.Title>
+                        <ListItem.Title key={settingsInfo}> {onekey[0]}: {onekey[1]} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
             ))}
             <ListItem bottomDivider onPress={() => navigation.navigate('EditAccountScreen')}>
                 <ListItem.Content>
                     <ListItem.Title style={{ fontWeight: 'bold' }}>View Clients</ListItem.Title>
-                </ListItem.Content>
-            </ListItem>
-            <ListItem bottomDivider onPress={() => navigation.navigate('AdminEditProfileScreen')}>
-                <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold' }}>Edit Profile</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
             <ListItem bottomDivider>

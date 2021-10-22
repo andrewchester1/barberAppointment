@@ -6,7 +6,7 @@ import moment from 'moment';
 import { ListItem } from 'react-native-elements';
 
 const AppointmentScreen = () => {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [calendarData, setCalendarData] = useState([]);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [formattedDate, setFormattedDate] = useState();
@@ -76,7 +76,9 @@ const AppointmentScreen = () => {
                         <ListItem.Title> {formattedDate ? formattedDate : 'Choose a date'} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
-                {!isLoading && calendarData ?
+                { isLoading ? 
+                    <ActivityIndicator size="large" color="#0000ff" />
+                  : calendarData &&
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                         {
                         calendarData.map((anObjectMapped, index) => (
@@ -98,8 +100,6 @@ const AppointmentScreen = () => {
                             ))
                         }  
                     </ScrollView > 
-                    : isLoading && 
-                    <ActivityIndicator size="large" color="#0000ff" />
                 }
             </View>
         </View>

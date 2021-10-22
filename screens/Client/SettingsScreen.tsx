@@ -35,7 +35,6 @@ const SettingsScreen = () => {
         FirestoreUserNameUtil.getUserName().then((userData) => {
             const userInfo = {
                 Name: userData.data().name,
-                Email: userData.data().email,
                 Phone: formatPhoneNumber(userData.data().phone),
             };
             setUserInfo(userInfo)
@@ -64,23 +63,13 @@ const SettingsScreen = () => {
                     </>{console.log('userDataType', userDataType)}
                 </View>
             }
-            { Object.entries(userInfo).map((onekey, i) => (
+            { Object.entries(userInfo).map((onekey, index) => (
                 <ListItem bottomDivider onPress={() => changeInfo(onekey)} >
                     <ListItem.Content>
-                        <ListItem.Title key={i}> {onekey[0]}: {onekey[1]} </ListItem.Title>
+                        <ListItem.Title key={index}> {onekey[0]}: {onekey[1]} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
             ))}
-            <ListItem bottomDivider>
-                <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold' }}>Change Password</ListItem.Title>
-                </ListItem.Content>
-            </ListItem>
-            <ListItem bottomDivider onPress={() => signOut()}>
-                <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold' }}>Delete Account</ListItem.Title>
-                </ListItem.Content>
-            </ListItem>
             <ListItem bottomDivider onPress={() => signOut()}>
                 <ListItem.Content>
                     <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center' }}>Sign Out</ListItem.Title>

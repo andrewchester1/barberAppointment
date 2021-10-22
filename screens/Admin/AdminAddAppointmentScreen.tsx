@@ -68,8 +68,13 @@ const AdminAddAppointmentScreen = () => {
                 />
                 
             </View>
-            <View style={{flex: 4}}>
-                { formattedDate ?
+            <View style={{flex: 5}}>
+                <ListItem bottomDivider>
+                    <ListItem.Content style={{ alignItems: 'center', marginTop: -5}}>
+                        <ListItem.Title> {formattedDate ? formattedDate : 'Choose a date'} </ListItem.Title>
+                    </ListItem.Content>
+                </ListItem>
+                { formattedDate &&
                     <Card>
                         <Card.Title>Selected Date: {formattedDate}</Card.Title>
                         <Card.Divider/>
@@ -103,7 +108,6 @@ const AdminAddAppointmentScreen = () => {
 
                         <Button title={'Add Appointment'} onPress={() => scheduleAppoint()}/>
                     </Card>
-                    : <Text style={{ alignSelf: 'center' }}>Choose date for appointment</Text>
                 }
             </View>
         </View>

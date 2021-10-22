@@ -5,7 +5,7 @@ import { firebase } from '@react-native-firebase/firestore';
 import { ScrollView } from 'react-native-gesture-handler';
 import FirestoreDeleteDocUtil from '../../utils/FirestoreDeleteDocUtil';
 
-const EditAccountScreen = () => {
+const EditAccountScreen = ({ navigation }) => {
     const [userInfo, setUserInfo] = useState([]);
 
     async function getUsers() {
@@ -49,19 +49,18 @@ const EditAccountScreen = () => {
                                 <ListItem.Title key={i}> Phone: {onekey.phone ? onekey.phone : 'N/A'} </ListItem.Title>
                             </ListItem.Content>
                         </ListItem>
-                        <ListItem bottomDivider>
+                        <ListItem bottomDivider onPress={() => navigation.navigate('Points', {
+                            name: onekey.name,
+                            userId: onekey.user_id,
+                            goatPoints: onekey.points,
+                        })}>
                             <ListItem.Content>
-                                <ListItem.Title key={i}> Upcoming Appointment: {onekey.upcoming ? onekey.upcoming : 'N/A'} </ListItem.Title>
+                                <ListItem.Title key={i}> Goat Points: {onekey.points ? onekey.points : 'N/A'} </ListItem.Title>
                             </ListItem.Content>
                         </ListItem>
                         <ListItem bottomDivider>
                             <ListItem.Content>
-                                <ListItem.Title key={i}> Appointment Time: {onekey.time ? onekey.time : 'N/A'} </ListItem.Title>
-                            </ListItem.Content>
-                        </ListItem>
-                        <ListItem bottomDivider>
-                            <ListItem.Content>
-                                <ListItem.Title key={i}> Previous Appointment: {onekey.previous ? onekey.previous : 'N/A'} </ListItem.Title>
+                                <ListItem.Title key={i}> Referral: {onekey.referral ? onekey.referral : 'N/A'} </ListItem.Title>
                             </ListItem.Content>
                         </ListItem>
                         </>
