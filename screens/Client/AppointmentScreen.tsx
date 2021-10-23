@@ -16,11 +16,12 @@ const AppointmentScreen = () => {
     const [times, setTimes] = useState({})
     const [timePicked, setTimePicked] = useState(false)
     const [selectedTime, setSelectedTime] = useState('')
-    const [barberInfo, setBarberInfo] = useState({})
+    const [barberInfo, setBarberInfo] = useState({'price': '', 'location': ''})
     const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
     const [userName, setUserName] = useState('')
     const [userPhone, setUserPhone] = useState('')
     const [text, onChangeText] = useState('')
+    const [userPoints, setUserPoints] = useState('')
     const [previousAppointment, setPreviousAppointment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
@@ -35,7 +36,8 @@ const AppointmentScreen = () => {
             await firestore().collection("Test").doc(userData.uid).get().then((doc) => {
                 const userNameData = doc.data().name
                 const userPhoneData = doc.data().phone
-                setUserName(userNameData ), setUserPhone( userPhoneData) 
+                const userPoints = doc.data().points
+                setUserName(userNameData ), setUserPhone( userPhoneData), setUserPoints(userPoints)
             })
         
             await firestore().collection('Barber').doc('Nate').get().then((doc) => {
@@ -111,8 +113,8 @@ const AppointmentScreen = () => {
     const getBarberInfo = (time) => {
         FirestoreBarberInfoUtil.getBarberInfo().then((testData) => {
             const barberData = {
-                Price: testData.data().price,
-                Address: testData.data().location
+                'price': testData.data().price,
+                'location': testData.data().location
             };
             setBarberInfo({ ...barberInfo, ...barberData})
             setSelectedTime(time)
@@ -159,18 +161,21 @@ const AppointmentScreen = () => {
 
     const addAppointmentDataBase = async (userData, selectedDate, selectedTime) => {
         const appointmentData = {
-            previous: previousAppointment,
-            upcoming: selectedDate,
             time: selectedTime,
         };
-    await firestore().collection('Test').doc(userData.uid).set( appointmentData, {merge: true})
+    await firestore().collection('Test').doc(userData.uid).collection('Haircuts').doc(selectedDate).set( appointmentData, {merge: true})
     }
+
+    function insertDecimal(num) {
+        return (num / 100).toFixed(2);
+     }
 
     useEffect(() => {
         removeMonSun()
         getUserId()
     }, [])
 
+    const [discount, setDiscount] = useState(false)
     return(
         <View style={styles.container}>
           <View style={{ flex: 1 }}>
@@ -214,9 +219,14 @@ const AppointmentScreen = () => {
                     <Card containerStyle={{ flex: 2, borderRadius: 15 }}>
                         <Card.Title style={{ fontSize: 15 }}>{selectedDate} @{selectedTime}</Card.Title>
                         <Card.Divider />
-                        {Object.entries(barberInfo).map((onekey, i) => (
-                            <Text key={i}>{onekey[0]}: {onekey[1]}</Text>
-                        ))}
+                        <Button title={`Goat Points: ${userPoints}`} onPress={() => setDiscount(true)}/>
+                        <Text>Price: {barberInfo.price}</Text>
+                        {discount &&
+                            <>
+                                <Text>Goat Points Discount: -${insertDecimal(userPoints)}</Text>
+                            </>
+                        }
+                        <Text>Address: {barberInfo.location}</Text>
                         <Text>Total time: ~30 minutes</Text>
                         <TextInput
                             // style={styles.input}

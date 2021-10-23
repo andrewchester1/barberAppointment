@@ -61,7 +61,7 @@ function AdminAdminStackScreen({ navigation }) {
     return (
         <AdminAboutStack.Navigator
         screenOptions={{
-            headerStyle:{backgroundColor: '#222831'},
+            headerStyle:{backgroundColor: '#080808'},
             headerTintColor: 'white',
             headerTitleAlign: 'center'
         }}>
@@ -70,7 +70,7 @@ function AdminAdminStackScreen({ navigation }) {
                     <Button
                     onPress={() => navigation.navigate('Edit Profile')}
                     title="Edit"
-                    color="#222831"
+                    color="#080808"
                     />
                 ),}} component={AboutScreen}/>
             <AdminAboutStack.Screen name="Edit Profile" options={{ title: 'Edit Profile', headerTitleAlign: 'center' }} component={AdminEditProfileScreen}/>
@@ -111,7 +111,7 @@ function MainAdminStackNavigator() {
         <Tab.Navigator 
         screenOptions={{
             tabBarStyle: {
-            backgroundColor: '#222831',
+            backgroundColor: '#080808',
             //backgroundColor: 'transparent',
             position:'absolute',
             bottom:0,

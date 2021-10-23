@@ -46,7 +46,7 @@ const AdminScreen = ({navigation}) => {
 
     return(
         <View style={styles.container}>
-            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider>
+            <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider>
                 <ListItem.Content >
                     <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center', color: 'white' }}>My Account Details</ListItem.Title>
                 </ListItem.Content>
@@ -63,23 +63,23 @@ const AdminScreen = ({navigation}) => {
                 </View>
             }
             { Object.entries(userInfo).map((onekey, settingsInfo) => (
-                <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider onPress={() => changeInfo(onekey)} >
+                <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider onPress={() => changeInfo(onekey)} >
                     <ListItem.Content>
                         <ListItem.Title style={{ color: 'white' }} key={settingsInfo}> {onekey[0]}: {onekey[1]} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
             ))}
-            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider onPress={() => navigation.navigate('EditAccountScreen')}>
+            <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider onPress={() => navigation.navigate('EditAccountScreen')}>
                 <ListItem.Content>
                     <ListItem.Title style={{ color: 'white' }}>View Clients</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
-            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider>
+            <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider>
                 <ListItem.Content>
                     <ListItem.Title style={{ color: 'white' }}>Change Password</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
-            <ListItem containerStyle={{backgroundColor:"grey"}} bottomDivider onPress={() => signOut()}>
+            <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider onPress={() => signOut()}>
                 <ListItem.Content>
                     <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center', color: 'white' }}>Sign Out</ListItem.Title>
                 </ListItem.Content>

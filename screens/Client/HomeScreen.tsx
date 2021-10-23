@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Card, ListItem } from 'react-native-elements'
+import { Card, ListItem, PricingCard } from 'react-native-elements'
 import moment from 'moment';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore'
 import { formatPhoneNumber } from '../../utils/DataFormatting';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const HomeScreen = () => {
-    const [userTestData, setUserData] = useState({'email': '', 'name': '', 'phone': '', 'previous': '', 'time': '', 'upcoming': ''});
+    const [userTestData, setUserData] = useState({'email': '', 'name': '', 'phone': '', 'previous': '', 'time': '', 'upcoming': '', 'points': ''});
     const [barberData, setBarberData] = useState({'location': '', 'price': '', 'phone': ''})
+    const [userAppointments, setUserAppointments] = useState({})
 
     async function getUserData() {
         const userData = auth().currentUser;
@@ -18,16 +20,17 @@ const HomeScreen = () => {
         await firestore().collection('Barber').doc('Nate').get().then((barber) => {
             setBarberData({...barberData, ...barber.data()})
         })
-        dateCheck()
-    }
-
-    function dateCheck() {
-        const upcomingAppointment = moment(userTestData.upcoming).format('YYYY-MM-DD').toString()
-        const dateToday = moment().format('YYYY-MM-DD').toString()
-        const userData = auth().currentUser;
-        if (dateToday > upcomingAppointment && upcomingAppointment != '') {
-            firestore().collection('Test').doc(userData.uid).update({previous: upcomingAppointment, upcoming: ''})
-        }
+        await firestore().collection('Test').doc(userData.uid).collection('Haircuts').get()
+        .then(snapshot => {
+            let data = {}
+            snapshot.forEach(doc => {
+                let newdata = {
+                    [doc.id]: doc.data().time
+                }
+                data =  {...data, ...newdata}
+            });
+            setUserAppointments(data)
+        })
     }
 
     useEffect(() => {
@@ -37,48 +40,37 @@ const HomeScreen = () => {
     return(
         <View style={styles.container}>
             <Card containerStyle={{ flex: 1, margin: 0}}>
-                <Card.Title style={{ fontSize: 15}}> {userTestData.name} </Card.Title>
+                <Card.Title style={{ fontSize: 20}}> {userTestData.name} </Card.Title>
+                <Card.Title style={{ fontSize: 15}}>Goat Points</Card.Title>
+                <Card.Title style={{ fontSize: 15}}>{userTestData.points}</Card.Title>
             </Card>
             <View style={{flex: 3}}>
-                { userTestData.upcoming != '' ?  
+                { userAppointments ?  
                     <>  
+                    <ScrollView>
                         <ListItem bottomDivider >
                             <ListItem.Content>
-                                <ListItem.Title style={{ fontWeight: 'bold' }}><Text>Upcoming Appointments</Text></ListItem.Title>
+                                <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center' }}><Text>Appointments</Text></ListItem.Title>
                             </ListItem.Content>
                         </ListItem>
-                        <ListItem bottomDivider>
-                            <ListItem.Content>
-                                <ListItem.Title >Haircut {userTestData.upcoming} @ {userTestData.time != '' ? userTestData.time : ''}</ListItem.Title>
-                                <Text> {barberData.price != '' ? 'Price: ' + barberData.price : '' } </Text>
-                                <Text> {barberData.location != '' ? 'Address: ' + barberData.location : ''} </Text>
-                                <Text> {barberData.phone != '' ? 'Phone Number: ' + formatPhoneNumber(barberData.phone) : ''} </Text>
-                            </ListItem.Content>
-                        </ListItem>
+                        {Object.entries(userAppointments).map((onekey, i) => (
+                                <ListItem bottomDivider>
+                                    <ListItem.Content>
+                                        <ListItem.Title key={i}>{onekey[0]} @ {onekey[1]}</ListItem.Title>
+                                        <Text> {barberData.price != '' ? 'Price: ' + barberData.price : '' } </Text>
+                                        <Text> {barberData.location != '' ? 'Address: ' + barberData.location : ''} </Text>
+                                        <Text> {barberData.phone != '' ? 'Phone Number: ' + formatPhoneNumber(barberData.phone) : ''} </Text>
+                                    </ListItem.Content>
+                                </ListItem>
+                        ))}
+                    </ScrollView>
                     </>
                 :
                 <ListItem bottomDivider >
                     <ListItem.Content>
-                        <ListItem.Title style={{ fontWeight: 'bold' }}><Text>Upcoming Appointments</Text></ListItem.Title>
-                        <Text>No Upcoming Appointments</Text>
+                        <ListItem.Title style={{ fontWeight: 'bold' }}><Text>No Appointments</Text></ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
-                }
-                
-                { userTestData.previous != '' ?
-                    <ListItem bottomDivider >
-                        <ListItem.Content>
-                            <ListItem.Title style={{ fontWeight: 'bold' }}>Previous Appointment</ListItem.Title>
-                            <Text>{userTestData.previous}</Text>
-                        </ListItem.Content>
-                    </ListItem>
-                    :
-                    <ListItem bottomDivider >
-                        <ListItem.Content>
-                            <ListItem.Title style={{ fontWeight: 'bold' }}>Previous Appointment</ListItem.Title>
-                            <Text>No Previous Appointments</Text>
-                        </ListItem.Content>
-                    </ListItem>
                 }
             </View>
         </View>
