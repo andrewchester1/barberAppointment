@@ -5,18 +5,17 @@ import firestore from '@react-native-firebase/firestore'
 import moment from 'moment';
 import { ListItem } from 'react-native-elements';
 
-const AppointmentScreen = () => {
+const AppointmentScreen = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [calendarData, setCalendarData] = useState([]);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [formattedDate, setFormattedDate] = useState();
     const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
 
-    async function getUserId(selectedDate) {
+    async function getAvailibility() {
           await firestore().collection('Barber').doc('Nate').get().then((doc) => {
           const databaseAvailibility = {...availibility, ...doc.data()}
           setAvailibility({ ...availibility, ...databaseAvailibility})
-          splitHours(selectedDate)
       })
   }
   
@@ -36,10 +35,10 @@ const AppointmentScreen = () => {
       const newSplitString = arr.toUpperCase().split("-").map(item => item.trim());
       const startTime = moment(newSplitString[0], 'HH:mm a')
       const endTime = moment(newSplitString[1], 'HH:mm a')
-      let newIntervals = {}
+      let newIntervals = []
       while (startTime <= endTime) {
-          let newobj = {[moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '')] : '' }
-          newIntervals = {...newIntervals, ...newobj}
+          let newobj = { 'time' : moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '') }
+          newIntervals.push(newobj)
           startTime.add(30, 'minutes')
       }
       console.log('newIntervals', newIntervals)
@@ -57,20 +56,24 @@ const AppointmentScreen = () => {
               const tempData = doc.data();
               data.push(tempData)
             });
+            const calendarTimes = newIntervals.map(obj => data.find(o => o.time === obj.time) || obj)
+            const testIntervals = [ ...data, ...newIntervals ]
+            console.log('testData', testIntervals)
+            setCalendarData( calendarTimes )
             setIsLoading(false)
-            setCalendarData([newIntervals, ...data])
         })
     }
 
     useEffect(() => {
         setSelectedDate(moment())
+        getAvailibility()
     }, [])
     
       const onDateSelected = selectedDate => {
         setSelectedDate(selectedDate.format('YYYY-MM-DD'));
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
         setIsLoading(true)
-        getUserId(selectedDate)
+        splitHours(selectedDate)
       }
     
       const deleteAppointment = (onekey: any) => {
@@ -113,23 +116,17 @@ const AppointmentScreen = () => {
                 </ListItem>
                 { isLoading ? 
                     <ActivityIndicator size="large" color="#0000ff" />
-                  : calendarData && isLoading &&
+                  : calendarData &&
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                         {
-                        calendarData.map(([key, value]) => (
-                            <ListItem key={key} bottomDivider 
-                            onPress={() => Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time ${"\n"} with Client:`, 
-                            [
-                                {
-                                  text: "Cancel"
-                                },
-                                { text: "Delete Appointment", onPress: () => '(deleteAppointment(anObjectMapped.time))' }
-                              ]) }> 
+                        calendarData.map((key, index) => (
+                            <ListItem key={`${key.name}_${key.phone}_${key.time}_${key.comment}`} bottomDivider 
+                            onPress={() => navigation.navigate('AdminAddAppointmentScreen', { formattedDate, time : [`${key.time}`] })}> 
                                 <ListItem.Content>
-                                    <ListItem.Title>{value} </ListItem.Title>
-                                    {/* <ListItem.Subtitle>Client: {value.name}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Phone: {value.phone}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Comment: {value.comment}</ListItem.Subtitle> */}
+                                    <ListItem.Title>{key.time} </ListItem.Title>
+                                    <ListItem.Subtitle>Client: {key.name}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Phone: {key.phone}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Comment: {key.comment}</ListItem.Subtitle>
                                 </ListItem.Content>
                             </ListItem>
                             ))

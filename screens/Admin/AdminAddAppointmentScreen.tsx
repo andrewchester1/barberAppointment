@@ -6,7 +6,7 @@ import moment from 'moment';
 import { Card, ListItem } from 'react-native-elements';
 import { TextInput } from 'react-native-gesture-handler';
 
-const AdminAddAppointmentScreen = () => {
+const AdminAddAppointmentScreen = ( { route, navigation } ) => {
     const [isLoading, setIsLoading] = useState(true);
     const [calendarData, setCalendarData] = useState([]);
     const [number, onChangeNumber] = useState('');
@@ -16,6 +16,8 @@ const AdminAddAppointmentScreen = () => {
 
     useEffect(() => {
         setSelectedDate(moment())
+        const {formattedDate, time} = route.params
+        console.log('addDate', formattedDate, time)
     }, [])
 
     const [selectedDate, setSelectedDate] = useState(moment());
