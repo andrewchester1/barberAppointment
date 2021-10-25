@@ -10,8 +10,43 @@ const AppointmentScreen = () => {
     const [calendarData, setCalendarData] = useState([]);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [formattedDate, setFormattedDate] = useState();
+    const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
 
-    async function onGetData(selectedDate) {
+    async function getUserId(selectedDate) {
+          await firestore().collection('Barber').doc('Nate').get().then((doc) => {
+          const databaseAvailibility = {...availibility, ...doc.data()}
+          setAvailibility({ ...availibility, ...databaseAvailibility})
+          splitHours(selectedDate)
+      })
+  }
+  
+    const splitHours = async (selectedDate) => {
+
+      const weekDay = Promise.resolve(moment(selectedDate, "YYYY-MM-DD HH:mm:ss").format('dddd').toString())
+      console.log('weekDay', weekDay)
+        Promise.all([weekDay]).then(values => {
+            createAvailableTimes(availibility[`${values}`], selectedDate)
+            console.log('availibility[`${values}`]', availibility[`${values}`])
+          });
+  }
+
+    function createAvailableTimes(newWeekDay, selectedDate) {
+      let arr = newWeekDay
+      console.log('arr', arr)
+      const newSplitString = arr.toUpperCase().split("-").map(item => item.trim());
+      const startTime = moment(newSplitString[0], 'HH:mm a')
+      const endTime = moment(newSplitString[1], 'HH:mm a')
+      let newIntervals = {}
+      while (startTime <= endTime) {
+          let newobj = {[moment(startTime, 'HH:mm a').format("hh:mm A").toString().replace(/^(?:00:)?0?/, '')] : '' }
+          newIntervals = {...newIntervals, ...newobj}
+          startTime.add(30, 'minutes')
+      }
+      console.log('newIntervals', newIntervals)
+      onGetData(selectedDate, newIntervals)
+    }
+
+    async function onGetData(selectedDate, newIntervals) {
       await firestore()
         .collection('Calendar')
         .doc(moment(selectedDate).format('MMM YY'))
@@ -23,7 +58,7 @@ const AppointmentScreen = () => {
               data.push(tempData)
             });
             setIsLoading(false)
-            setCalendarData(data)
+            setCalendarData([newIntervals, ...data])
         })
     }
 
@@ -35,7 +70,7 @@ const AppointmentScreen = () => {
         setSelectedDate(selectedDate.format('YYYY-MM-DD'));
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
         setIsLoading(true)
-        onGetData(selectedDate)
+        getUserId(selectedDate)
       }
     
       const deleteAppointment = (onekey: any) => {
@@ -50,7 +85,7 @@ const AppointmentScreen = () => {
           })
       }
     
-
+      console.log('calendarData', calendarData)
     return(
         <View style={styles.container}> 
             <View style={{flex: 1}}>
@@ -78,23 +113,23 @@ const AppointmentScreen = () => {
                 </ListItem>
                 { isLoading ? 
                     <ActivityIndicator size="large" color="#0000ff" />
-                  : calendarData &&
+                  : calendarData && isLoading &&
                     <ScrollView style={{ borderColor: 'black', borderRadius: 15}}>
                         {
-                        calendarData.map((anObjectMapped, index) => (
-                            <ListItem key={`${anObjectMapped.name} ${anObjectMapped.phone} ${anObjectMapped.time} ${anObjectMapped.comment}`} bottomDivider 
-                            onPress={() => Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time @ ${anObjectMapped.time ? anObjectMapped.time : 'N/A'} ${"\n"} with Client: ${anObjectMapped.name ? anObjectMapped.name : 'N/A'}`, 
+                        calendarData.map(([key, value]) => (
+                            <ListItem key={key} bottomDivider 
+                            onPress={() => Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time ${"\n"} with Client:`, 
                             [
                                 {
                                   text: "Cancel"
                                 },
-                                { text: "Delete Appointment", onPress: () => (deleteAppointment(anObjectMapped.time)) }
+                                { text: "Delete Appointment", onPress: () => '(deleteAppointment(anObjectMapped.time))' }
                               ]) }> 
                                 <ListItem.Content>
-                                    <ListItem.Title>{anObjectMapped.time} </ListItem.Title>
-                                    <ListItem.Subtitle>Client: {anObjectMapped.name}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Phone: {anObjectMapped.phone}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Comment: {anObjectMapped.comment}</ListItem.Subtitle>
+                                    <ListItem.Title>{value} </ListItem.Title>
+                                    {/* <ListItem.Subtitle>Client: {value.name}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Phone: {value.phone}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>Comment: {value.comment}</ListItem.Subtitle> */}
                                 </ListItem.Content>
                             </ListItem>
                             ))
