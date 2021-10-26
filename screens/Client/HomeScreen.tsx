@@ -54,14 +54,26 @@ const HomeScreen = () => {
                             </ListItem.Content>
                         </ListItem>
                         {Object.entries(userAppointments).map((onekey, i) => (
-                                <ListItem bottomDivider>
-                                    <ListItem.Content>
-                                        <ListItem.Title key={i}>{onekey[0]} @ {onekey[1]}</ListItem.Title>
-                                        <Text> {barberData.price != '' ? 'Price: ' + barberData.price : '' } </Text>
-                                        <Text> {barberData.location != '' ? 'Address: ' + barberData.location : ''} </Text>
-                                        <Text> {barberData.phone != '' ? 'Phone Number: ' + formatPhoneNumber(barberData.phone) : ''} </Text>
-                                    </ListItem.Content>
-                                </ListItem>
+                            <ListItem bottomDivider>
+                                <ListItem.Content>
+                                <View style={{flex: 1, flexDirection: 'row'}}>
+                                    <View style={{flex: 2, alignItems: 'flex-start' }}>
+                                        <ListItem.Title key={i}>{onekey[0]}, {onekey[1].toString().toLowerCase()}</ListItem.Title>
+                                    </View>
+                                    <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                        <ListItem.Title >{barberData.price != '' ? barberData.price : '' }</ListItem.Title>
+                                    </View>
+                                </View>
+                                <View style={{flex: 1, flexDirection: 'row'}}>
+                                    <View style={{flex: 1, alignItems: 'flex-start' }}>
+                                        <Text>{barberData.location != '' ? barberData.location : ''} </Text>
+                                    </View>
+                                    <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                        <Text>{barberData.phone != '' ? formatPhoneNumber(barberData.phone) : ''} </Text>
+                                    </View>
+                                </View>
+                                </ListItem.Content>
+                            </ListItem>
                         ))}
                     </ScrollView>
                     </>

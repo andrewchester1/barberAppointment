@@ -63,9 +63,9 @@ const SettingsScreen = () => {
                 </View>
             }
             { Object.entries(userInfo).map((onekey, index) => (
-                <ListItem bottomDivider onPress={() => changeInfo(onekey)} >
+                <ListItem key={index} bottomDivider onPress={() => changeInfo(onekey)} >
                     <ListItem.Content>
-                        <ListItem.Title key={index}> {onekey[0]}: {onekey[1]} </ListItem.Title>
+                        <ListItem.Title> {onekey[0]}: {onekey[1]} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
             ))}
