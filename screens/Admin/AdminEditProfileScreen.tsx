@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { LoginContext } from '../../utils/LoginProvider';
 import firestore from '@react-native-firebase/firestore'
 import { ListItem } from 'react-native-elements';
@@ -7,7 +7,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 const AdminEditProfileScreen = () => {
     const { user } = useContext(LoginContext);
-    const [barberProfile, setBarberProfile] = useState({})
+    const [isLoading, setIsLoading] = useState(true)
+    const [barberProfile, setBarberProfile] = useState({'name': '', 'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': '', 'instagram': '', 'location': '', 'phone': '', 'price': '', 'website': '' })
     const [changeData, setChangeData] = useState('')
     const [barberDataType, setBarberDataType] = useState('')
     const [newBarberData, setNewBarberData] = useState('')
@@ -17,12 +18,13 @@ const AdminEditProfileScreen = () => {
         .collection('Barber')
         .doc('Nate')
         .get()
-        setBarberProfile({...data.data()})
+        setBarberProfile({...barberProfile, ...data.data()})
+        setIsLoading(false)
       }
 
-      const changeBarberData = (onekey) => {
-        setChangeData(onekey[1].toString()),
-        setBarberDataType(onekey[0].toLowerCase())
+      const changeBarberData = (value, type) => {
+        setChangeData(value.toString()),
+        setBarberDataType(type.toLowerCase())
       }
 
       const setBarberData = () => {
@@ -37,7 +39,6 @@ const AdminEditProfileScreen = () => {
           Alert.alert('Success', 'Data has been changed')
         })
         .catch((error) => {
-          console.log('Error updating the document: ', error)
           alert('Something went wrong try again')
       }); 
       }
@@ -61,13 +62,72 @@ const AdminEditProfileScreen = () => {
             </View>
             : <Text></Text>
             } 
-            { Object.entries(barberProfile).map((onekey, i) => (
-                <ListItem bottomDivider onPress={() => changeBarberData(onekey)} >
+            { barberProfile && !isLoading ?
+              <>
+                <ListItem bottomDivider >
+                  <ListItem.Content>
+                      <ListItem.Title style={{fontWeight: 'bold'}}>Info</ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.price, 'price')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Price: {barberProfile.price} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.website, 'website')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Website: {barberProfile.website} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.instagram, 'instagram')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Instagram: {barberProfile.instagram} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.phone, 'phone')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Phone: {barberProfile.phone} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider >
+                  <ListItem.Content>
+                      <ListItem.Title style={{fontWeight: 'bold'}}>Address and Location</ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.location, 'location')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Address: {barberProfile.location} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.Tuesday, 'Tuesday')} >
                     <ListItem.Content>
-                        <ListItem.Title key={i}> {onekey[0]}: {onekey[1]} </ListItem.Title>
+                        <ListItem.Title>Tuesday: {barberProfile.Tuesday} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
-            ))}
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.Wednesday, 'Wednesday')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Wednesday: {barberProfile.Wednesday} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.Thursday, 'Thursday')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Thursday: {barberProfile.Thursday} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.Friday, 'Friday')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Friday: {barberProfile.Friday} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                <ListItem bottomDivider onPress={() => changeBarberData(barberProfile.Saturday, 'Saturday')} >
+                  <ListItem.Content>
+                      <ListItem.Title>Saturday: {barberProfile.Saturday} </ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+              </>
+              : 
+              <ActivityIndicator color='#000' size='large'/>
+            }
             </ScrollView>
         </View>
     )

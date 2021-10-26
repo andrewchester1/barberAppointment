@@ -7,7 +7,6 @@ const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState('');
 
     const signIn = () => {FirebaseUtil.signIn(email, password).catch((e) => {
-        console.log(e)
         alert('Email/Password is incorrect')
     })};
 

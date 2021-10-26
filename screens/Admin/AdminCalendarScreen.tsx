@@ -22,16 +22,13 @@ const AppointmentScreen = ({ navigation }) => {
     const splitHours = async (selectedDate) => {
 
       const weekDay = Promise.resolve(moment(selectedDate, "YYYY-MM-DD HH:mm:ss").format('dddd').toString())
-      console.log('weekDay', weekDay)
         Promise.all([weekDay]).then(values => {
             createAvailableTimes(availibility[`${values}`], selectedDate)
-            console.log('availibility[`${values}`]', availibility[`${values}`])
           });
   }
 
     function createAvailableTimes(newWeekDay, selectedDate) {
       let arr = newWeekDay
-      console.log('arr', arr)
       const newSplitString = arr.toUpperCase().split("-").map(item => item.trim());
       const startTime = moment(newSplitString[0], 'HH:mm a')
       const endTime = moment(newSplitString[1], 'HH:mm a')
@@ -41,7 +38,6 @@ const AppointmentScreen = ({ navigation }) => {
           newIntervals.push(newobj)
           startTime.add(30, 'minutes')
       }
-      console.log('newIntervals', newIntervals)
       onGetData(selectedDate, newIntervals)
     }
 
@@ -58,7 +54,6 @@ const AppointmentScreen = ({ navigation }) => {
             });
             const calendarTimes = newIntervals.map(obj => data.find(o => o.time === obj.time) || obj)
             const testIntervals = [ ...data, ...newIntervals ]
-            console.log('testData', testIntervals)
             setCalendarData( calendarTimes )
             setIsLoading(false)
         })
@@ -76,19 +71,16 @@ const AppointmentScreen = ({ navigation }) => {
         splitHours(selectedDate)
       }
     
-      const deleteAppointment = (onekey: any) => {
+      const deleteAppointment = (deleteTime: any) => {
         firestore().collection('Calendar')
         .doc(moment(selectedDate).format('MMM YY'))
-        .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(onekey).delete().then(() => {
-            console.log('Appointment Deleted');
+        .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(deleteTime).delete().then(() => {
             Alert.alert('Success', 'Appointment Deleted')
           }).catch((e) => {
-              console.log(e)
               Alert.alert('Error', `Unable to delete appointment. Try again. ${e}`)
           })
       }
     
-      console.log('calendarData', calendarData)
     return(
         <View style={styles.container}> 
             <View style={{flex: 1}}>
@@ -121,13 +113,30 @@ const AppointmentScreen = ({ navigation }) => {
                         {
                         calendarData.map((key, index) => (
                             <ListItem key={`${key.name}_${key.phone}_${key.time}_${key.comment}`} bottomDivider 
-                            onPress={() => navigation.navigate('AdminAddAppointmentScreen', { formattedDate, time : [`${key.time}`] })}> 
-                                <ListItem.Content>
-                                    <ListItem.Title>{key.time} </ListItem.Title>
-                                    <ListItem.Subtitle>Client: {key.name}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Phone: {key.phone}</ListItem.Subtitle>
-                                    <ListItem.Subtitle>Comment: {key.comment}</ListItem.Subtitle>
-                                </ListItem.Content>
+                            onPress={() => key.name ? Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time ${"\n"} with Client:`, 
+                            [
+                                {
+                                  text: "Cancel"
+                                },
+                                { text: "Delete Appointment", onPress: () => (deleteAppointment(key.time))}
+                              ]) : navigation.navigate('AdminAddAppointmentScreen', { formattedDate, time : [`${key.time}`] })}> 
+                              <ListItem.Content>
+                                <View style={{flex: 1, flexDirection: 'row'}}>
+                                    <View style={{flex: 1}}><ListItem.Title >{key.time}</ListItem.Title></View>
+                                      { !key.name &&
+                                        <View style={{flex: 2, alignItems: 'flex-end'}}><ListItem.Title >Avaliable</ListItem.Title></View>
+                                      }
+                                    </View>
+                                    { key.name &&
+                                      <ListItem.Subtitle>Client: {key.name}</ListItem.Subtitle>
+                                    }
+                                    { key.phone &&
+                                      <ListItem.Subtitle>Phone: {key.phone}</ListItem.Subtitle>
+                                    }
+                                    { key.comment == '' &&
+                                      <ListItem.Subtitle>Comment: {key.comment}</ListItem.Subtitle>
+                                    }
+                              </ListItem.Content>
                             </ListItem>
                             ))
                         }  

@@ -14,7 +14,6 @@ const SettingsScreen = () => {
     const [userDataType, setUserDataType] = useState('');
     
     const signOut = () => {FirebaseUtil.signOut().catch((e) => {
-        console.log(e)
         alert('Unable to sign out try again.')
     })}
 
@@ -60,7 +59,7 @@ const SettingsScreen = () => {
                         value={newUserInfo}
                         style={styles.textInput} />
                         <Button title={`Change ${userDataType.charAt(0).toUpperCase() + userDataType.slice(1)}`} onPress={() => setUserData(newUserInfo)}/>
-                    </>{console.log('userDataType', userDataType)}
+                    </>
                 </View>
             }
             { Object.entries(userInfo).map((onekey, index) => (

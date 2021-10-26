@@ -15,7 +15,6 @@ const EditAccountScreen = ({ navigation }) => {
     }
 
     const deleteUser = (user_id: any) => {FirestoreDeleteDocUtil.deleteDoc('Test', user_id).catch((e) => {
-        console.log(e)
         alert('Unable to sign out try again.')
     })}
 

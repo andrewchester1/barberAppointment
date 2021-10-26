@@ -144,7 +144,6 @@ const AppointmentScreen = () => {
         .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(selectedTime)
         .set(userAppointmentInfo, {merge: true})
         .then(() => {
-            console.log('It worked!!!!!')
             addAppointmentDataBase(userData, selectedDate, selectedTime)
             Alert.alert('Appointment Scheduled',`Thanks ${userName}, your appointment has been scheduled`,
             [
@@ -154,7 +153,6 @@ const AppointmentScreen = () => {
                 }
               ])
         }).catch((error) => {
-            console.log('Error updating the document: ', error)
             alert('Something went wrong try again')
         }); 
     }

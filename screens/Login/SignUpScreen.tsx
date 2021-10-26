@@ -11,10 +11,7 @@ const LoginScreen = () => {
         formState: {errors, isValid}
       } = useForm({mode: 'onBlur'})
 
-      const onSubmit = data => console.log(data)
-
     const signUp = data => {FirebaseUtil.signUp(data.email, data.password, data.phone, data.name, data.referral).catch((e) => {
-        console.log(e)
         alert('Something went wrong')
     })};
     return(
