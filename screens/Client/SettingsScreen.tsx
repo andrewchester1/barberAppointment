@@ -48,7 +48,7 @@ const SettingsScreen = () => {
         <View style={styles.container}>
             <ListItem bottomDivider>
                 <ListItem.Content>
-                    <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center' }}>My Account Detials</ListItem.Title>
+                    <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center' }}>My Account Details</ListItem.Title>
                 </ListItem.Content>
             </ListItem>
             { changeUserInfo &&

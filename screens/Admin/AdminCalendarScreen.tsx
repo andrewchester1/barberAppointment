@@ -4,13 +4,14 @@ import CalendarStrip from 'react-native-calendar-strip';
 import firestore from '@react-native-firebase/firestore'
 import moment from 'moment';
 import { ListItem } from 'react-native-elements';
+import { formatPhoneNumber } from '../../utils/DataFormatting';
 
 const AppointmentScreen = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [calendarData, setCalendarData] = useState([]);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [formattedDate, setFormattedDate] = useState();
-    const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': ''})
+    const [availibility, setAvailibility] = useState({'Tuesday': '', 'Wednesday': '', 'Thursday': '', 'Friday': '', 'Saturday': '', 'goatPoints': ''})
 
     async function getAvailibility() {
           await firestore().collection('Barber').doc('Nate').get().then((doc) => {
@@ -113,7 +114,7 @@ const AppointmentScreen = ({ navigation }) => {
                         {
                         calendarData.map((key, index) => (
                             <ListItem key={`${key.name}_${key.phone}_${key.time}_${key.comment}`} bottomDivider 
-                            onPress={() => key.name ? Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time ${"\n"} with Client:`, 
+                            onPress={() => key.name ? Alert.alert('Delete', `Are you sure you want to delete this ${"\n"}Appointment Time ${key.time} ${"\n"} with Client: ${key.name}`, 
                             [
                                 {
                                   text: "Cancel"
@@ -122,20 +123,26 @@ const AppointmentScreen = ({ navigation }) => {
                               ]) : navigation.navigate('AdminAddAppointmentScreen', { formattedDate, time : [`${key.time}`] })}> 
                               <ListItem.Content>
                                 <View style={{flex: 1, flexDirection: 'row'}}>
-                                    <View style={{flex: 1}}><ListItem.Title >{key.time}</ListItem.Title></View>
-                                      { !key.name &&
-                                        <View style={{flex: 2, alignItems: 'flex-end'}}><ListItem.Title >Avaliable</ListItem.Title></View>
-                                      }
-                                    </View>
-                                    { key.name &&
-                                      <ListItem.Subtitle>Client: {key.name}</ListItem.Subtitle>
+                                  <View style={{flex: 1}}><ListItem.Title >{key.time}</ListItem.Title></View>
+                                    { !key.name ?
+                                      <View style={{flex: 2, alignItems: 'flex-end'}}><ListItem.Title>Avaliable</ListItem.Title></View>
+                                      : 
+                                      <View style={{flex: 2, alignItems: 'flex-end'}}><ListItem.Title>Goat Points: {key.goatPoints ? key.goatPoints : '0'}</ListItem.Title></View>
                                     }
-                                    { key.phone &&
-                                      <ListItem.Subtitle>Phone: {key.phone}</ListItem.Subtitle>
+                                </View>
+                                <View style={{flex: 1, flexDirection: 'row'}}>
+                                    { key.name ?
+                                      <>
+                                        <View style={{flex: 2}}><ListItem.Subtitle>{key.name}</ListItem.Subtitle></View>
+                                        <View style={{flex: 2, alignItems: 'flex-end'}}><ListItem.Subtitle>{formatPhoneNumber(key.phone) ? formatPhoneNumber(key.phone) : key.phone }</ListItem.Subtitle></View>
+                                      </>
+                                    : null
                                     }
-                                    { key.comment == '' &&
-                                      <ListItem.Subtitle>Comment: {key.comment}</ListItem.Subtitle>
-                                    }
+                                </View>
+                                { key.comment ?
+                                  <ListItem.Subtitle>Comment: {key.comment}</ListItem.Subtitle>
+                                  : null
+                                }
                               </ListItem.Content>
                             </ListItem>
                             ))

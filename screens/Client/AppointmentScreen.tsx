@@ -121,28 +121,21 @@ const AppointmentScreen = () => {
         });
     };
 
-    const addAppointmentToUser = async (selectedDate, selectedTime) => {
+    const scheduleAppoint = async (selectedDate, selectedTime) => {
         const userData = auth().currentUser;
-        await firestore().collection('Test').doc(userData.uid).get().then((data) => {
-            const oldAppointmentData = data.data().upcoming
-            setPreviousAppointment(oldAppointmentData)
-            scheduleAppoint(userData, selectedDate, selectedTime)
-        })
-    }
-
-    const scheduleAppoint = async (userData, selectedDate, selectedTime) => {
         const userAppointmentInfo = {
             name: userName,
             comment: text,
             time : selectedTime,
-            phone : userPhone
+            phone : userPhone,
+            goatPoints : discount !=false ? userPoints : ''
         };
 
         await firestore()
         .collection('Calendar')
         .doc(moment(selectedDate).format('MMM YY'))
         .collection(moment(selectedDate).format('YYYY-MM-DD')).doc(selectedTime)
-        .set(userAppointmentInfo, {merge: true})
+        .set(userAppointmentInfo, {merge: false})
         .then(() => {
             addAppointmentDataBase(userData, selectedDate, selectedTime)
             Alert.alert('Appointment Scheduled',`Thanks ${userName}, your appointment has been scheduled`,
@@ -160,12 +153,19 @@ const AppointmentScreen = () => {
     const addAppointmentDataBase = async (userData, selectedDate, selectedTime) => {
         const appointmentData = {
             time: selectedTime,
+            points: discount !=false ? userPoints : ''
         };
     await firestore().collection('Test').doc(userData.uid).collection('Haircuts').doc(selectedDate).set( appointmentData, {merge: true})
+    discount != false ? await firestore().collection('Test').doc(userData.uid).set({points: '0'} , {merge: true}) : null
     }
 
     function insertDecimal(num) {
         return (num / 100).toFixed(2);
+     }
+
+     function subtractDiscount(goatPoints) {
+        const discount = Number(barberInfo.price.replace(/[$.]+/g, '')) - Number(userPoints)
+        return (discount / 100).toFixed(2)
      }
 
     useEffect(() => {
@@ -219,19 +219,19 @@ const AppointmentScreen = () => {
                         <Card.Divider />
                         <Button title={`Goat Points: ${userPoints}`} onPress={() => setDiscount(true)}/>
                         <Text>Price: {barberInfo.price}</Text>
-                        {discount &&
+                        {discount !=false &&
                             <>
-                                <Text>Goat Points Discount: -${insertDecimal(userPoints)}</Text>
+                                <Text>Goat Points: -${insertDecimal(userPoints)}</Text>
+                                <Text>New Price: ${subtractDiscount(userPoints)}</Text>
                             </>
                         }
                         <Text>Address: {barberInfo.location}</Text>
                         <Text>Total time: ~30 minutes</Text>
                         <TextInput
-                            // style={styles.input}
                             onChangeText={onChangeText}
                             value={text}
                             placeholder="Comment" />
-                        <Button onPress={() => addAppointmentToUser(formattedDate, selectedTime)} title='Confirm Appointment' />
+                        <Button onPress={() => scheduleAppoint(formattedDate, selectedTime)} title='Confirm Appointment' />
                     </Card> 
                 }
             </View>   

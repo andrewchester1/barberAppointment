@@ -79,11 +79,6 @@ const AdminScreen = ({navigation}) => {
                         <ListItem.Title style={{ color: 'white' }}>View Clients</ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
-                <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider>
-                    <ListItem.Content>
-                        <ListItem.Title style={{ color: 'white' }}>Change Password</ListItem.Title>
-                    </ListItem.Content>
-                </ListItem>
                 <ListItem containerStyle={{backgroundColor: '#101010'}} bottomDivider onPress={() => signOut()}>
                     <ListItem.Content>
                         <ListItem.Title style={{ fontWeight: 'bold', alignSelf: 'center', color: 'white' }}>Sign Out</ListItem.Title>

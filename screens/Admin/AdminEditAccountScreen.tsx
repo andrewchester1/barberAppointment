@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Text, Button } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { firebase } from '@react-native-firebase/firestore';
 import { ScrollView } from 'react-native-gesture-handler';
 import FirestoreDeleteDocUtil from '../../utils/FirestoreDeleteDocUtil';
+import { formatPhoneNumber } from '../../utils/DataFormatting';
 
 const EditAccountScreen = ({ navigation }) => {
     const [userInfo, setUserInfo] = useState([]);
@@ -35,15 +36,35 @@ const EditAccountScreen = ({ navigation }) => {
                             { text: "Delete User", onPress: () => (deleteUser(onekey.user_id)) }
                           ]) }>
                             <ListItem.Content>
-                                <ListItem.Title style={{ fontWeight: 'bold', textAlign: 'center', alignSelf: 'center'}} key={i}>Name: {onekey.name} </ListItem.Title>
+                                    <ListItem.Title style={{ fontWeight: 'bold', textAlign: 'center', alignSelf: 'center', paddingBottom: 10}} key={i}>{onekey.name} </ListItem.Title>
+                                <View style={{flex: 1, flexDirection: 'row'}}>
+                                    <View style={{flex: 1, alignItems: 'flex-start' }}>
+                                        <ListItem.Subtitle>{onekey.phone ? formatPhoneNumber(onekey.phone) : 'N/A'}</ListItem.Subtitle>
+                                    </View>
+                                    <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                        <ListItem.Subtitle>{onekey.referral ? 'Referral: ' + onekey.referral : 'No Referral'} </ListItem.Subtitle>
+                                    </View>
+                                </View>
+                                    <View style={{flex: 1, flexDirection: 'row'}}>
+                                        <View style={{flex: 1, alignItems: 'flex-start' }}>
+                                            <ListItem.Subtitle>UserId: {onekey.user_id ? onekey.user_id : 'N/A'}</ListItem.Subtitle>
+                                        </View>
+                                        <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                            <Button title={`Goat Points: ${onekey.points}`} onPress={() => navigation.navigate('Points', {
+                                                name: onekey.name,
+                                                userId: onekey.user_id,
+                                                goatPoints: onekey.points,
+                                            })}/>
+                                        </View>
+                                    </View>
                             </ListItem.Content>
                         </ListItem>
-                        <ListItem bottomDivider>
+                        {/* <ListItem bottomDivider>
                             <ListItem.Content>
                                 <ListItem.Title key={i}> User Id: {onekey.user_id ? onekey.user_id : 'N/A'} </ListItem.Title>
                             </ListItem.Content>
-                        </ListItem>
-                        <ListItem bottomDivider>
+                        </ListItem> */}
+                        {/* <ListItem bottomDivider>
                             <ListItem.Content>
                                 <ListItem.Title key={i}> Phone: {onekey.phone ? onekey.phone : 'N/A'} </ListItem.Title>
                             </ListItem.Content>
@@ -61,7 +82,7 @@ const EditAccountScreen = ({ navigation }) => {
                             <ListItem.Content>
                                 <ListItem.Title key={i}> Referral: {onekey.referral ? onekey.referral : 'N/A'} </ListItem.Title>
                             </ListItem.Content>
-                        </ListItem>
+                        </ListItem> */}
                         </>
                         
                 ))}

@@ -1,14 +1,18 @@
 import React, { useState } from 'react'
 import { StyleSheet, View, TextInput, Button, Text } from 'react-native'
-import FirebaseUtil from '../../utils/FirebaseUtil';
+import { firebase } from '@react-native-firebase/auth';
   
-const LoginScreen = ({ navigation }) => {
+const ForgotPasswordScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
 
-    const signIn = () => {FirebaseUtil.signIn(email, password).catch((e) => {
-        alert('Email/Password is incorrect')
-    })};
+    const forgotPassword = () => {
+        firebase.auth().sendPasswordResetEmail(email)
+          .then(function (user) {
+            alert('Please check your email...')
+          }).catch(function (e) {
+            console.log(e)
+          })
+      }
 
     return (
         <View style={styles.container}>
@@ -17,17 +21,8 @@ const LoginScreen = ({ navigation }) => {
                 onChangeText={setEmail}
                 value={email}
                 style={styles.textInput} 
-            />
-            <TextInput 
-                placeholder="Password"
-                onChangeText={setPassword}
-                value={password}
-                style={styles.textInput} 
-                secureTextEntry={true} 
-            />
-                
-            <Button title='Sign In' onPress={() => signIn()} />
-            <Button title='Forgot Password?' onPress={() => navigation.navigate('Forgot Password')} />
+            />   
+            <Button title='Send' onPress={() => forgotPassword()} />
         </View>
     );
 }
@@ -52,4 +47,4 @@ const styles = StyleSheet.create({
     },
   });
 
-  export default LoginScreen;
+  export default ForgotPasswordScreen;

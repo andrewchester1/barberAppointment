@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import firestore from '@react-native-firebase/firestore'
 import moment from 'moment';
@@ -7,7 +7,6 @@ import { Card, ListItem } from 'react-native-elements';
 import { TextInput } from 'react-native-gesture-handler';
 
 const AdminAddAppointmentScreen = ( { route, navigation } ) => {
-    const [isLoading, setIsLoading] = useState(true);
     const [number, onChangeNumber] = useState('');
     const [name, onChangeName] = useState('');
     const [time, onChangeTime] = useState('');
@@ -25,7 +24,6 @@ const AdminAddAppointmentScreen = ( { route, navigation } ) => {
       const onDateSelected = selectedDate => {
         setSelectedDate(selectedDate);
         setFormattedDate(selectedDate.format('YYYY-MM-DD'));
-        setIsLoading(true)
       }
 
       const scheduleAppoint =  () => {
@@ -67,46 +65,45 @@ const AdminAddAppointmentScreen = ( { route, navigation } ) => {
                 />
                 
             </View>
-            <View style={{flex: 5}}>
                 <ListItem bottomDivider>
                     <ListItem.Content style={{ alignItems: 'center', marginTop: -5}}>
-                        <ListItem.Title> {formattedDate ? 'Selected Date' + formattedDate : 'Choose a date'} </ListItem.Title>
+                        <ListItem.Title> {formattedDate ? formattedDate : 'Choose a date'} </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
-                { formattedDate &&
-                    <Card>
-                        <Card.Divider/>
-                        <Text>Choose a time for the appointment</Text>
-                        <TextInput 
-                        style={{borderColor: 'black', borderWidth: 1, marginBottom: 10}} 
-                        onChangeText={onChangeTime}
-                        value={time}
-                        />
+            <View style={{flex: 5, padding: 10}}>
+                    { formattedDate &&
+                        <>
+                            <TextInput 
+                            placeholder="Time"
+                            style={styles.textInput} 
+                            onChangeText={onChangeTime}
+                            value={time}
+                            />
 
-                        <Text>Name of Client</Text>
-                        <TextInput 
-                        style={{borderColor: 'black', borderWidth: 1, marginBottom: 10}} 
-                        onChangeText={onChangeName}
-                        value={name}
-                        />
+                            <TextInput 
+                            placeholder="Name"
+                            style={styles.textInput} 
+                            onChangeText={onChangeName}
+                            value={name}
+                            />
 
-                        <Text>Phone Number of Client</Text>
-                        <TextInput 
-                        style={{borderColor: 'black', borderWidth: 1, marginBottom: 10}} 
-                        onChangeText={onChangeNumber}
-                        value={number}
-                        />
+                            <TextInput 
+                            placeholder="Phone"
+                            style={styles.textInput} 
+                            onChangeText={onChangeNumber}
+                            value={number}
+                            />
 
-                        <Text>Comment for Haircut</Text>
-                        <TextInput 
-                        style={{borderColor: 'black', borderWidth: 1, marginBottom: 10}} 
-                        onChangeText={onChangeComment}
-                        value={comment}
-                        />
+                            <TextInput 
+                            placeholder="Comments"
+                            style={styles.textInput} 
+                            onChangeText={onChangeComment}
+                            value={comment}
+                            />
 
-                        <Button title={'Add Appointment'} onPress={() => scheduleAppoint()}/>
-                    </Card>
-                }
+                            <Button title={'Add Appointment'} onPress={() => scheduleAppoint()}/>
+                        </>
+                    }
             </View>
         </View>
     )
@@ -114,11 +111,18 @@ const AdminAddAppointmentScreen = ( { route, navigation } ) => {
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      justifyContent: 'center',
-      alignContent: 'center'
-    }
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        padding: 0,
+      },
+      textInput: {
+        borderWidth: 1,
+        borderColor: 'grey',
+        padding: 10,
+        marginBottom: 20,
+        borderRadius: 5,
+    },
   });
 
 export default AdminAddAppointmentScreen

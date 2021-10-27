@@ -21,6 +21,7 @@ import AdminProvider from "./utils/AdminProvider";
 import AdminAddPoints from "./screens/Admin/AdminAddPoints";
 import { View, Button, Text } from "react-native";
 import SignUpScreen from "./screens/Login/SignUpScreen";
+import ForgotPasswordScreen from "./screens/Login/ForgotPasswordScreen";
 
 const Tab = createBottomTabNavigator()
 
@@ -92,6 +93,7 @@ function LoginStackScreen({ navigation }) {
                     />
                 ),}} component={LoginScreen}/>
             <LoginSreenStack.Screen name="Sign Up" options={{ title: 'Create Account', headerTitleAlign: 'center' }} component={SignUpScreen}/>
+            <LoginSreenStack.Screen name="Forgot Password" options={{ title: 'Forgot Password', headerTitleAlign: 'center' }} component={ForgotPasswordScreen}/>
         </LoginSreenStack.Navigator>
     )
 }
@@ -146,7 +148,7 @@ export default function AppStack() {
                             component={EditAccountScreen} />
                     <Stack.Screen name='AdminEditProfileScreen' component={AdminEditProfileScreen} /></>
                 ): user && admin != true ? (
-                    <Stack.Screen name="Home" options={{ headerShown: false }} component={MainStackNavigator} />
+                    <Stack.Screen name="MainStackNavigator" options={{ headerShown: false }} component={MainStackNavigator} />
                 ) : (
                     <Stack.Screen name="Sign In" options={{ headerShown: false }} component={LoginStackScreen}/>
                 )}
